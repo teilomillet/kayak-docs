@@ -1,6 +1,9 @@
 site_name: kayak
 site_description: Late-interaction retrieval for Python with an explicit Mojo exact CPU backend
 site_url: https://docs.withkayak.com
+repo_url: https://github.com/teilomillet/kayak-docs
+repo_name: teilomillet/kayak-docs
+edit_uri: edit/main/docs/
 
 theme:
   name: material
@@ -31,6 +34,8 @@ theme:
     - navigation.tracking
     - search.suggest
     - search.highlight
+    - content.action.edit
+    - content.action.view
     - content.code.copy
     - content.code.annotate
     - content.tabs.link

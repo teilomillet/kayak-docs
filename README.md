@@ -13,6 +13,10 @@ mkdocs serve
 
 Open [http://localhost:8000](http://localhost:8000).
 
+The requirements file intentionally keeps the site on MkDocs 1.x and Material
+9.x for now. This avoids drifting into the MkDocs 2.x path before the upstream
+theme story is settled.
+
 ## Deploy
 
 Documentation deploys automatically on push to `main` via GitHub Actions.
