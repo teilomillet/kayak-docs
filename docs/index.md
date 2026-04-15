@@ -35,5 +35,3 @@ Exact late-interaction retrieval for Python. Kayak gives you an explicit surface
 | inspect the stable public signatures | [Python API](api.md) |
 
 Start with [Installation](installation.md) → [Quickstart](quickstart.md) → [Usage Patterns](usage-patterns.md).
-
-![Overview of the Kayak flow from text or vectors into exact search, with optional vector database storage and loaded-slice reuse.](assets/overview-flow.svg)
