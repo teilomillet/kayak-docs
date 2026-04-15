@@ -13,7 +13,7 @@ It keeps the parts that matter explicit:
 That is the point of the SDK. You should be able to see what the retrieval
 pipeline is doing, measure it, and change it deliberately.
 
-## If You Want Mojo, Start With Pixi
+## If You Want Mojo, Make Mojo Available
 
 If your goal is to use the Mojo backend, do not stop at:
 
@@ -26,10 +26,15 @@ will expose only the NumPy reference backend.
 
 The verified path for the Mojo backend is:
 
-1. Create or use a Pixi environment that includes Mojo.
+1. Create or use any environment where Kayak can find a usable `mojo` CLI.
 2. Install `kayak` into that same environment.
 3. Use `kayak.open_text_retriever(...)` for the highest-level text workflow, or
    pass `backend=kayak.MOJO_EXACT_CPU_BACKEND` on lower-level search calls.
+
+Any environment manager is fine as long as Kayak can find a usable `mojo` CLI.
+Pixi is one easy way to make that explicit in one project. UV works too if
+Mojo is already installed and discoverable through the active environment,
+`PATH`, or `KAYAK_MOJO_CLI`.
 
 Use the [installation guide](installation.md) for the exact workflow.
 
@@ -111,6 +116,15 @@ hits = retriever.search_text("install python and mojo together", k=10)
 That is the recommended entry point when you want one Python object for text
 ingest plus search.
 
+If you are deciding which encoder to use:
+
+- use `"colbert"` when you have a ColBERT checkpoint on Hugging Face
+- use `"callable"` when you already have your own model methods
+
+The short guide is:
+
+- [Text Encoders](text-encoders.md)
+
 ## Why Kayak Is Different
 
 Most vector search APIs hide the retrieval pipeline behind a single method call.
@@ -145,11 +159,13 @@ That makes it practical to answer questions like:
 
 ## Read Next
 
-- [Installation](installation.md) for the Pixi plus Mojo setup
+- [Installation](installation.md) for the Mojo-capable install paths
 - [Quickstart](quickstart.md) for a working Mojo-first script
+- [Text Encoders](text-encoders.md) for ColBERT-from-HF and bring-your-own-model usage
 - [Usage Patterns](usage-patterns.md) for which API to call for each task
 - [Storage + Search](storage-and-search.md) for the vector-db-as-storage, Kayak-as-search-engine deployment shape
+- [Hosted Engine Python](hosted-engine-python.md) for many same-process callers against one fixed hosted snapshot
 - [Using the Mojo Backend](mojo-backend.md) for how to make Mojo your normal code path
-- [Vector Database Integrations](vector-databases.md) for LanceDB, Qdrant, Weaviate, ChromaDB, and generic stage-1/stage-2 handoff patterns
+- [Vector Database Integrations](vector-databases.md) for LanceDB, PgVector/Postgres, Qdrant, Weaviate, ChromaDB, and generic stage-1/stage-2 handoff patterns
 - [Late Interaction](concepts.md) for the scoring model and explicit vector budgets
 - [Search Plans](search-plans.md) for approximate stage 1 plus exact stage 2 pipelines

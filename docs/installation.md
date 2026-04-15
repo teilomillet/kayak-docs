@@ -2,12 +2,22 @@
 
 ## The Short Version
 
-If you want the Mojo backend, install `kayak` into a Pixi environment that
-already has Mojo.
+Any Python environment manager works.
+
+If you want the Mojo backend, Kayak needs to be able to find a usable `mojo`
+CLI. That is the actual requirement.
 
 If you install only the Python package with `uv add kayak` or `pip install
-kayak`, Kayak will still work, but it will default to the NumPy reference
-backend because no Mojo CLI is available.
+kayak`, and no usable Mojo CLI is visible, Kayak will still work but it will
+default to the NumPy reference backend.
+
+Verified setup shapes:
+
+| Setup | Result |
+| --- | --- |
+| `uv add kayak` or `pip install kayak` with no usable `mojo` CLI | `numpy_reference` only |
+| `uv add kayak` in an environment where `mojo` is already installed and discoverable | `mojo_exact_cpu` is available |
+| `pixi add python=3.11 ... mojo` plus `pixi add --pypi kayak` | `mojo_exact_cpu` is available |
 
 Kayak wheels bundle the Mojo backend they were built with. If your first
 `mojo_exact_cpu` call reports that the bundled backend and the active Mojo
@@ -18,9 +28,10 @@ That distinction is verified in the code:
 
 - `numpy_reference` is always available
 - `mojo_exact_cpu` appears only when Kayak can find a usable `mojo` command
-- Kayak never auto-switches from NumPy to Mojo just because Mojo is present
+- low-level operations like `search(...)` and `maxsim(...)` never auto-switch from NumPy to Mojo
+- `open_text_retriever(...)` prefers Mojo automatically when the backend is actually available
 
-## Recommended: Pixi Plus Mojo Plus Kayak
+## One Verified Way: One Environment With Mojo Plus Kayak
 
 Kayak currently validates the Mojo dependency in the range:
 
@@ -28,8 +39,9 @@ Kayak currently validates the Mojo dependency in the range:
 >=0.26.3.0.dev2026041020,<0.27
 ```
 
-Inside a Pixi workspace that already includes Modular's `max-nightly` channel
-and `conda-forge`, install the Python runtime, Mojo, and Kayak together:
+One verified way to do that is a Pixi workspace that already includes
+Modular's `max-nightly` channel and `conda-forge`. Install the Python runtime,
+Mojo, and Kayak together:
 
 ```bash
 pixi add python=3.11 "mojo>=0.26.3.0.dev2026041020,<0.27"
@@ -57,26 +69,27 @@ True
 'Kayak can invoke Mojo via: ...'
 ```
 
-This is the setup to recommend if you want your normal development environment
-to be Mojo-capable.
+This is an easy Mojo-capable setup, but it is not the only valid setup.
 
-## If You Already Have Mojo Installed
+## UV Plus A Preinstalled Mojo CLI
 
 If you already have a working `mojo` CLI in the same Python environment, or on
-`PATH`, installing the Python package is enough:
+`PATH`, UV is enough too:
 
 ```bash
-pip install kayak
 mojo --version
-python - <<'PY'
+uv add kayak
+uv run python - <<'PY'
 import kayak
 print(kayak.available_backends())
+print(kayak.backend_info(kayak.MOJO_EXACT_CPU_BACKEND).availability_reason)
 PY
 ```
 
-That is a valid setup. It is just not the best starting point when your goal is
-"use Kayak with Mojo by default in my app" because it leaves the environment
-contract implicit.
+That is a valid Mojo-capable setup.
+
+UV is correct when the environment already owns Mojo. Pixi is just another way
+to make that environment explicit in one place.
 
 ## Optional Store Adapters
 
@@ -87,16 +100,72 @@ Install only the extra adapter you actually plan to use.
 For the public LanceDB store adapter:
 
 ```bash
-pixi add --pypi lancedb pyarrow
-```
-
-or, outside Pixi:
-
-```bash
 uv add lancedb pyarrow
 ```
 
+or:
+
+```bash
+pixi add --pypi lancedb pyarrow
+```
+
 Then `kayak.open_store("lancedb", ...)` becomes available in that environment.
+
+For the public Qdrant store adapter:
+
+```bash
+uv add qdrant-client
+```
+
+or:
+
+```bash
+pixi add --pypi qdrant-client
+```
+
+Then `kayak.open_store("qdrant", ...)` becomes available.
+
+For the public Weaviate store adapter:
+
+```bash
+uv add weaviate-client
+```
+
+or:
+
+```bash
+pixi add --pypi weaviate-client
+```
+
+Then `kayak.open_store("weaviate", ...)` becomes available.
+
+For the public Chroma store adapter:
+
+```bash
+uv add chromadb
+```
+
+or:
+
+```bash
+pixi add --pypi chromadb
+```
+
+Then `kayak.open_store("chromadb", ...)` becomes available.
+
+For the public pgvector store adapter:
+
+```bash
+uv add "psycopg[binary]" pgvector
+```
+
+or:
+
+```bash
+pixi add --pypi "psycopg[binary]" pgvector
+```
+
+Then `kayak.open_store("pgvector", ...)` becomes available.
 
 ## What Not To Do
 
@@ -140,8 +209,11 @@ That removes ambiguity and is the right choice for CI or shared dev machines.
 
 ## The Backend Still Stays Explicit In Code
 
-Installing with Pixi plus Mojo makes the backend available. It does not make the
-SDK silently switch defaults.
+Any setup that makes a usable `mojo` CLI visible to Kayak makes the backend
+available. The low-level SDK still keeps backend choice explicit.
+
+The one high-level exception is `open_text_retriever(...)`, which prefers Mojo
+automatically when the active environment can run it.
 
 If you want your application code to behave as "Mojo by default," define the
 backend once and reuse it:

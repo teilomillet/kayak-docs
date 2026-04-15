@@ -8,6 +8,13 @@ import kayak
 
 This page focuses on the stable Python surface and the backend contract.
 
+Hosted-engine Python note:
+
+- this API page covers `import kayak`
+- the hosted-engine Python surface lives under `import kayak_engine`
+- for pinned hosted snapshots and the local exact-search scheduler, see
+  [Hosted Engine Python](hosted-engine-python.md)
+
 ## Constructors
 
 ### `kayak.open_encoder(kind, **kwargs)`
@@ -27,6 +34,13 @@ Built-in kinds:
 - `"callable"`
 - `"colbert"`
 
+Use:
+
+- `"colbert"` when the model is a ColBERT checkpoint and `model_name` is the
+  Hugging Face repo id
+- `"callable"` when you already have query/document methods that emit token
+  vectors
+
 ### `kayak.open_store(kind, **kwargs)`
 
 Open a public persistence adapter from the stable factory.
@@ -40,6 +54,10 @@ Built-in kinds:
 - `"memory"`
 - `"kayak"` and `"directory"`
 - `"lancedb"`
+- `"pgvector"` with aliases `"postgres"` and `"postgresql"`
+- `"qdrant"`
+- `"weaviate"`
+- `"chromadb"` and `"chroma"`
 
 ### `kayak.open_text_retriever(...)`
 
@@ -148,15 +166,27 @@ index = documents.pack()
 
 Wrap user-provided Python callables behind Kayak's text encoder contract.
 
+Those callables can come from plain functions or bound model methods.
+They are called one text at a time by the public SDK surface.
+
 ### `kayak.ColBERTTextEncoder(model_name='colbert-ir/colbertv2.0', *, checkpoint=None, gpus=0)`
 
 Encode text with a ColBERT checkpoint into `LateQuery` and `LateDocuments`.
+
+`model_name` is the Hugging Face repo id for the ColBERT checkpoint.
+The public encoder path encodes one query or document text at a time.
 
 ### `kayak.register_encoder(kind, factory, *, replace=False)`
 
 Register a custom encoder factory behind `open_encoder(...)`.
 
 ## Stores
+
+All public stores support:
+
+- `close()`
+- `with ... as store:`
+- `load_index(...)` to materialize one exact `LateIndex`
 
 ### `kayak.MemoryLateStore()`
 
@@ -169,6 +199,39 @@ Persist one local packed Kayak snapshot on disk and materialize it back into `La
 ### `kayak.LanceDBLateStore(path, *, table_name='late_documents')`
 
 Persist documents in LanceDB row storage and materialize `LateIndex` objects from the table.
+
+`where=` is applied exactly, but after Arrow materialization in the current public adapter.
+
+### `kayak.PgVectorLateStore(dsn=None, *, connection=None, table_name='late_documents', schema_name='public', ensure_extension=True)`
+
+Persist documents in Postgres with the `pgvector` extension and materialize
+exact `LateIndex` objects from stored rows.
+
+`dsn` and `connection` are mutually exclusive. Simple scalar `where=` filters
+are pushed into Postgres through JSONB containment before load, and Kayak still
+applies the exact filter after fetch.
+
+### `kayak.QdrantLateStore(path=None, *, client=None, collection_name='late_documents')`
+
+Persist documents in a Qdrant collection with native multivectors and materialize
+`LateIndex` objects from stored rows.
+
+Simple scalar `where=` filters are pushed into Qdrant before load.
+
+### `kayak.WeaviateLateStore(persistence_path=None, *, client=None, collection_name='LateDocument', vector_name='colbert', environment_variables=None)`
+
+Persist documents in a Weaviate collection with a named self-provided multivector
+and materialize `LateIndex` objects from stored rows.
+
+`where=` is applied exactly, but after collection iteration in the current public adapter.
+
+### `kayak.ChromaLateStore(path=None, *, client=None, collection_name='late_documents')`
+
+Persist documents in a Chroma collection and materialize exact `LateIndex`
+objects from stored rows.
+
+The adapter stores one pooled dense vector per document in Chroma plus the exact
+token matrix in metadata so Kayak can reconstruct the exact index.
 
 ### `kayak.register_store(kind, factory, *, replace=False)`
 
@@ -184,11 +247,28 @@ Important methods:
 
 - `upsert_texts(doc_ids, texts, metadata=None)`
 - `delete(doc_ids)`
+- `close()`
 - `load_index(...)`
 - `search_text(...)`
 - `search_query(...)`
+- `search_text_batch(...)`
+- `search_query_batch(...)`
 - `search_text_with_plan(...)`
 - `search_query_with_plan(...)`
+
+`load_index(...)` is the reusable exact slice. Use it when the store stays fixed
+and the queries are the thing changing.
+
+The public retriever/store contract does not currently promise generic
+thread-safe concurrent use of the same store instance across all adapters.
+The verified reusable path is:
+
+- call `load_index(...)` once
+- reuse that `LateIndex` with `search(...)` or `search_batch(...)`
+
+If you need one explicit same-process multi-caller surface around a fixed
+hosted snapshot, use `import kayak_engine` and
+`prepare_exact_search_scheduler(...)`.
 
 ### `LateQuery.to_layout(layout)`
 

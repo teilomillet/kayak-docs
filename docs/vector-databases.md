@@ -17,6 +17,7 @@ If you want the explicit “keep the DB for saving, let Kayak search” story, r
 These notebooks are included with the docs:
 
 - [lancedb-to-kayak-reranking.ipynb](notebooks/lancedb-to-kayak-reranking.ipynb)
+- [pgvector-to-kayak-exact-search.ipynb](notebooks/pgvector-to-kayak-exact-search.ipynb)
 - [qdrant-to-kayak-reranking.ipynb](notebooks/qdrant-to-kayak-reranking.ipynb)
 - [weaviate-to-kayak-reranking.ipynb](notebooks/weaviate-to-kayak-reranking.ipynb)
 - [chromadb-to-kayak-reranking.ipynb](notebooks/chromadb-to-kayak-reranking.ipynb)
@@ -28,6 +29,34 @@ Each notebook prints local average timings for:
 - full Kayak exact search on the same local slice
 
 Treat those numbers as local usage examples, not as decision-grade benchmarks.
+
+Script examples in the repository:
+
+- `python/examples/pgvector_store.py`
+
+## Adapter Semantics
+
+All public store adapters support the same basic contract:
+
+- `upsert(...)`
+- `delete(...)`
+- `load_index(...)`
+- `close()`
+- `with kayak.open_store(...) as store: ...`
+
+What differs is how each adapter stores vectors and how much of `where=` can be
+applied before Kayak materializes the exact index.
+
+| Store | Native multivectors | `load_index(where=...)` behavior | Stored exact token matrix |
+| --- | --- | --- | --- |
+| PgVector | Yes | simple scalar filters are pushed into Postgres JSONB before load | yes |
+| Qdrant | Yes | simple scalar filters are pushed into Qdrant before load | yes |
+| Weaviate | Yes | current public adapter filters after collection iteration | yes |
+| LanceDB | Yes | current public adapter filters after Arrow materialization | yes |
+| Chroma | No | simple scalar filters are pushed into Chroma before load | yes |
+
+For this page, "simple scalar filters" means the exact-match mapping form shown
+in the examples, with string, bool, int, or float values.
 
 ## Optional Candidate Handoff
 
@@ -66,9 +95,75 @@ To hand candidates to Kayak, you need:
 - stable document ids
 - document text if you want `clause_text`
 
+## PgVector / Postgres
+
+PgVector is the direct Postgres path when you want to keep rows in your
+existing database and let Kayak materialize the exact slice locally.
+
+Install the adapter dependencies:
+
+```bash
+uv add "psycopg[binary]" pgvector
+```
+
+or:
+
+```bash
+pixi add --pypi "psycopg[binary]" pgvector
+```
+
+Then use the public store adapter:
+
+```python
+store = kayak.open_store(
+    "pgvector",
+    dsn="postgresql://postgres:postgres@127.0.0.1:5432/postgres",
+    table_name="docs",
+)
+store.upsert(documents, metadata=metadata_rows)
+
+index = store.load_index(where={"tenant": "acme"}, include_text=True)
+hits = kayak.search(
+    query,
+    index,
+    k=10,
+    backend=kayak.MOJO_EXACT_CPU_BACKEND,
+)
+```
+
+The current public adapter stores:
+
+- one exact token matrix per document as `vector(dim)[]`
+- optional document text in `text`
+- exact metadata in `jsonb`
+
+That means you can keep Postgres as the durable store, apply simple scalar
+metadata filters before load, and still let Kayak own the exact late-interaction
+search step.
+
 ## Qdrant
 
 Qdrant is a direct fit for ColBERT-style multivectors.
+
+Kayak now exposes a direct public store adapter for the "keep Qdrant for
+storage, let Kayak search" path:
+
+```python
+store = kayak.open_store(
+    "qdrant",
+    client=my_qdrant_client,
+    collection_name="docs",
+)
+store.upsert(documents, metadata=metadata_rows)
+
+index = store.load_index(where={"tenant": "acme"}, include_text=True)
+hits = kayak.search(
+    query,
+    index,
+    k=10,
+    backend=kayak.MOJO_EXACT_CPU_BACKEND,
+)
+```
 
 The executed notebook is:
 
@@ -136,6 +231,27 @@ Use Qdrant this way when you want:
 
 Weaviate also supports self-provided multivectors.
 
+Kayak now exposes a direct public store adapter for the same storage-first
+shape:
+
+```python
+store = kayak.open_store(
+    "weaviate",
+    client=my_weaviate_client,
+    collection_name="Doc",
+    vector_name="colbert",
+)
+store.upsert(documents, metadata=metadata_rows)
+
+index = store.load_index(where={"tenant": "acme"}, include_text=True)
+hits = kayak.search(
+    query,
+    index,
+    k=10,
+    backend=kayak.MOJO_EXACT_CPU_BACKEND,
+)
+```
+
 The executed notebook is:
 
 - [weaviate-to-kayak-reranking.ipynb](notebooks/weaviate-to-kayak-reranking.ipynb)
@@ -194,6 +310,10 @@ Use Weaviate this way when you want:
 - named multivectors with self-provided embeddings
 - a straightforward candidate-vector handoff into Kayak
 
+For the current public adapter, `load_index(where=...)` is exact but it is not a
+database-side pushdown path yet. The adapter iterates the collection and applies
+the metadata filter before materializing the Kayak index.
+
 ## LanceDB
 
 LanceDB can store multivectors directly and works well as a local stage-1 store.
@@ -236,9 +356,31 @@ That path is useful when:
 - Kayak owns exact late-interaction scoring
 - you want one factual store contract instead of a custom bridge per application
 
+For the current public adapter, `load_index(where=...)` is exact but it filters
+after Arrow materialization, not inside LanceDB itself.
+
 ## ChromaDB
 
 Chroma is a practical dense stage-1 store, not a native late-interaction store.
+
+Kayak now exposes a compatibility store adapter for the same public contract:
+
+```python
+store = kayak.open_store(
+    "chromadb",
+    client=my_chroma_client,
+    collection_name="docs",
+)
+store.upsert(documents, metadata=metadata_rows)
+
+index = store.load_index(where={"tenant": "acme"}, include_text=True)
+hits = kayak.search(
+    query,
+    index,
+    k=10,
+    backend=kayak.MOJO_EXACT_CPU_BACKEND,
+)
+```
 
 The executed notebook is:
 
@@ -269,6 +411,14 @@ Use the Chroma rerank pattern when you actually need:
 
 If your filtered slice is already small, the notebook shows why a full exact
 Kayak search can be the simpler and faster path.
+
+The public Chroma store adapter stores:
+
+- one pooled dense vector per document for Chroma's native dense collection
+- the exact token matrix serialized in metadata so Kayak can reconstruct the exact index
+
+That is why the adapter can satisfy the same `load_index(...)` contract without
+pretending Chroma is a native late-interaction engine.
 
 Minimal shape:
 

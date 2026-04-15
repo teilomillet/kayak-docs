@@ -44,10 +44,33 @@ That is the core flow:
 3. Pack them into a `LateIndex`.
 4. Pass `backend=kayak.MOJO_EXACT_CPU_BACKEND`.
 
+If you start from text instead of precomputed vectors, use one encoder plus one
+retriever:
+
+```python
+retriever = kayak.open_text_retriever(
+    encoder="colbert",
+    store="kayak",
+    encoder_kwargs={"model_name": "colbert-ir/colbertv2.0"},
+    store_kwargs={"path": "./kayak-index"},
+)
+
+retriever.upsert_texts(doc_ids, texts)
+hits = retriever.search_text(query_text, k=10)
+```
+
+For the shortest explanation of encoder choice, see [Text Encoders](text-encoders.md).
+
 ## Why The `BACKEND` Variable Matters
 
-Installing Pixi plus Mojo makes the Mojo backend available.
-It does not make the SDK silently switch defaults.
+Installing Kayak in any environment where Mojo is already installed and
+discoverable makes the Mojo backend available. Pixi is one way to do that.
+UV works too. The requirement is a usable `mojo` CLI, not Pixi itself.
+
+Neither setup makes the low-level SDK silently switch defaults.
+
+If you use `open_text_retriever(...)`, that high-level workflow already prefers
+Mojo automatically when it is available.
 
 The `BACKEND` constant above is the recommended pattern when you want your own
 application code to behave as "use Mojo unless I override it."
@@ -95,6 +118,7 @@ That is one of the main reasons to install Mojo in the first place.
 ## Next Steps
 
 - [Usage Patterns](usage-patterns.md) for the shortest map from task to API
+- [Text Encoders](text-encoders.md) for ColBERT-from-HF and bring-your-own-model usage
 - [real-usage-with-mojo.ipynb](notebooks/real-usage-with-mojo.ipynb) for a complete executed example
 - [Using the Mojo Backend](mojo-backend.md) for when to use each layout and API
 - [Late Interaction](concepts.md) for the scoring model and explicit vector budgets

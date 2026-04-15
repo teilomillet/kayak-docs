@@ -9,11 +9,21 @@ This page is the shortest answer to:
 For a complete runnable example, download the executed notebook:
 
 - [real-usage-with-mojo.ipynb](notebooks/real-usage-with-mojo.ipynb)
+- [batch-search-on-one-loaded-lancedb-slice.ipynb](notebooks/batch-search-on-one-loaded-lancedb-slice.ipynb)
 - [lancedb-to-kayak-reranking.ipynb](notebooks/lancedb-to-kayak-reranking.ipynb)
 
 If you already have a vector database and want Kayak to own retrieval, see:
 
 - [Storage + Search](storage-and-search.md)
+
+If your data already lives in a hosted-engine snapshot and you want one local
+Python reuse or scheduling surface around that snapshot, see:
+
+- [Hosted Engine Python](hosted-engine-python.md)
+
+If you are choosing an encoder first, read:
+
+- [Text Encoders](text-encoders.md)
 
 ## Text Ingest Plus Search
 
@@ -39,7 +49,13 @@ Use:
 - `kayak.open_text_retriever(...)` for one high-level text workflow object
 - `retriever.upsert_texts(...)` when the source corpus starts as raw text
 - `retriever.search_text(...)` when you want the retriever to encode the query and load the store slice
+- `retriever.load_index(...)` when you want to reuse one materialized slice across many queries
 - omit `backend=...` if you want this high-level workflow to prefer Mojo automatically when available
+
+Choose the encoder this way:
+
+- `"colbert"` when you have a ColBERT checkpoint on Hugging Face
+- `"callable"` when you already have your own model methods
 
 ## Exact Search For One Query
 
@@ -100,6 +116,23 @@ Use:
 - `kayak.query_batch(...)` to keep ragged query vector counts explicit
 - `kayak.search_batch(...)` for top-k hits per query
 - `kayak.maxsim_batch(...)` if you need full score vectors per query
+
+If you are already using the high-level retriever and your queries still start
+as text, use:
+
+```python
+hits_by_query = retriever.search_text_batch(
+    [query_a_text, query_b_text, query_c_text],
+    k=5,
+    where={"tenant": "acme"},
+)
+```
+
+- `retriever.search_text_batch(...)` when you want one store load plus one batch search
+- `retriever.search_query_batch(...)` when you already built a `LateQueryBatch`
+
+This is the right public SDK shape when many queries target the same already
+loaded slice. It is different from generic concurrent use of one store object.
 
 ## Exact Baseline With Stage Profiles
 
@@ -167,12 +200,44 @@ hits = kayak.search(query, index, k=10, backend=BACKEND)
 Use:
 
 - the vector database for saving
+- `kayak.open_store(...)` when you want Kayak to materialize that database into one searchable slice directly
 - `kayak.documents(...).pack()` as the reusable in-process search index
 - `kayak.search(...)` or `kayak.search_with_plan(...)` for query-time retrieval
 
 For the benchmark-backed version of this pattern, see:
 
 - [Storage + Search](storage-and-search.md)
+
+## Many Same-Process Callers Against One Fixed Snapshot
+
+Use this when your data already lives in a hosted-engine service root and many
+callers in one Python process need the same pinned snapshot.
+
+```python
+from kayak_engine import (
+    PreparedExactSearchSchedulerConfig,
+    prepare_exact_search_scheduler,
+)
+
+scheduler = prepare_exact_search_scheduler(
+    service_root="./.state/kayak-engine",
+    collection_id="news",
+    tenant_id="tenant-a",
+    namespace_id="search",
+    snapshot_id="snapshot-0001",
+    config=PreparedExactSearchSchedulerConfig(
+        worker_count=4,
+        max_batch_size=32,
+        max_batch_wait_ms=2,
+    ),
+)
+```
+
+Use:
+
+- `kayak.search_batch(...)` when you already loaded one local `LateIndex`
+- `kayak_engine.prepare_exact_search_scheduler(...)` when many callers share one fixed hosted snapshot
+- [Hosted Engine Python](hosted-engine-python.md) for the full scheduler contract
 
 ## Clause-Text Verification
 

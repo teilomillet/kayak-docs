@@ -30,13 +30,20 @@ That means:
 - the stage structure stays the same
 - the backend choice is still explicit at the call site
 
-## Use Pixi To Make Mojo Available
+## Make Mojo Available
 
-The most reliable install story is:
+The requirement is not Pixi itself. The requirement is that Kayak can invoke a
+usable `mojo` command.
 
-1. Put Python 3.11, Mojo, and Kayak in the same Pixi environment.
-2. Verify `kayak.available_backends()` includes `mojo_exact_cpu`.
-3. Define a backend constant in your application code.
+Two verified install stories are:
+
+- put Python 3.11, Mojo, and Kayak in the same Pixi environment
+- or install `kayak` with UV or pip in an environment where `mojo` is already available
+
+In both cases:
+
+1. Verify `kayak.available_backends()` includes `mojo_exact_cpu`.
+2. Define a backend constant in your application code.
 
 ```bash
 pixi add python=3.11 "mojo>=0.26.3.0.dev2026041020,<0.27"
@@ -53,10 +60,24 @@ print(kayak.available_backends())
 If that tuple does not include `mojo_exact_cpu`, stop and inspect
 `kayak.backend_info(kayak.MOJO_EXACT_CPU_BACKEND)` before assuming anything.
 
+UV works too if Mojo is already installed first and is discoverable:
+
+```bash
+mojo --version
+uv add kayak
+uv run python - <<'PY'
+import kayak
+print(kayak.available_backends())
+print(kayak.backend_info(kayak.MOJO_EXACT_CPU_BACKEND).availability_reason)
+PY
+```
+
+That is equally valid as long as the `mojo` CLI is actually visible to Kayak.
+
 ## How To Make Your Own Code Default To Mojo
 
-Kayak does not auto-select Mojo. If you want "default to Mojo" behavior in your
-own codebase, define that default yourself:
+Low-level Kayak calls do not auto-select Mojo. If you want "default to Mojo"
+behavior in your own codebase, define that default yourself:
 
 ```python
 import kayak
@@ -78,6 +99,10 @@ That is better than relying on hidden environment behavior because:
 - it is explicit in code review
 - tests can override it easily
 - benchmarks stay honest about which executor ran
+
+If you want the highest-level text workflow to do that selection for you,
+`open_text_retriever(...)` already prefers Mojo automatically when it is
+available.
 
 ## Use 128-Dim Embeddings For The Mojo Path
 

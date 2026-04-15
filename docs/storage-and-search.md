@@ -67,10 +67,34 @@ The retriever path is the default recommendation when:
 environment exposes the Mojo backend. Pass `backend=...` only when you want
 to force a different backend choice.
 
-## Public Store Adapter For LanceDB
+## Public Store Adapters
 
-If the storage layer is LanceDB, you can use the public store adapter directly
-instead of writing a row-to-index bridge yourself:
+If the storage layer is already Qdrant, Weaviate, LanceDB, Chroma, or Postgres
+with pgvector, use the
+public store adapter directly instead of writing a row-to-index bridge yourself.
+
+Prefer the context-manager form when the store may own a client process or other
+cleanup-sensitive resource:
+
+```python
+with kayak.open_store("qdrant", client=my_qdrant_client, collection_name="docs") as store:
+    store.upsert(documents, metadata=metadata_rows)
+    index = store.load_index(include_text=True)
+```
+
+Store-specific `where=` behavior is not identical across adapters. See
+[Vector Database Integrations](vector-databases.md) for the exact storage and
+filtering semantics before you assume database-side pushdown.
+
+Examples:
+
+- `kayak.open_store("pgvector", dsn=... | connection=..., table_name=..., schema_name=...)`
+- `kayak.open_store("qdrant", client=... | path=..., collection_name=...)`
+- `kayak.open_store("weaviate", client=... | persistence_path=..., collection_name=..., vector_name=...)`
+- `kayak.open_store("lancedb", path=..., table_name=...)`
+- `kayak.open_store("chromadb", client=... | path=..., collection_name=...)`
+
+One concrete example:
 
 ```python
 import kayak
@@ -83,14 +107,13 @@ encoder = kayak.open_encoder(
 
 documents = encoder.encode_documents(doc_ids, texts)
 
-store = kayak.open_store(
+with kayak.open_store(
     "lancedb",
     path="./lancedb-store",
     table_name="docs",
-)
-store.upsert(documents, metadata=metadata_rows)
-
-index = store.load_index(where={"tenant": "acme"}, include_text=True)
+) as store:
+    store.upsert(documents, metadata=metadata_rows)
+    index = store.load_index(where={"tenant": "acme"}, include_text=True)
 query = encoder.encode_query("install python and mojo together")
 hits = kayak.search(
     query,
@@ -105,6 +128,53 @@ In that shape:
 - LanceDB keeps persistence
 - Kayak materializes the searchable slice
 - Kayak runs exact late-interaction search on the loaded index
+
+## Repeated Queries Against The Same Stored Slice
+
+If the underlying database rows stay fixed for a while, the verified fast path
+is:
+
+1. load one exact Kayak slice once
+2. reuse that `LateIndex` for many queries
+3. use `search_batch(...)` when those queries arrive together
+
+```python
+import kayak
+
+with kayak.open_store("pgvector", dsn=dsn, table_name="docs") as store:
+    index = store.load_index(where={"tenant": "acme"}, include_text=True)
+
+batch = kayak.query_batch([query_a_vectors, query_b_vectors, query_c_vectors])
+hits_by_query = kayak.search_batch(
+    batch,
+    index,
+    k=10,
+    backend=kayak.MOJO_EXACT_CPU_BACKEND,
+)
+```
+
+That path is well documented and matches the current public SDK contract:
+
+- the database still owns persistence
+- `load_index(...)` materializes one reusable exact slice
+- `search(...)`, `maxsim(...)`, `search_batch(...)`, and `maxsim_batch(...)`
+  run on that loaded slice
+
+## What Is Not Promised Here
+
+The public `LateStore` protocol does not currently promise generic thread-safe
+concurrent use of the same store instance across every adapter.
+
+What is verified and supported today is:
+
+- repeated queries against one loaded `LateIndex`
+- batched queries against one loaded `LateIndex`
+- explicit concurrent same-snapshot serving through `import kayak_engine`
+
+If you want many same-process callers to share one fixed hosted snapshot, use
+the prepared scheduler from [Hosted Engine Python](hosted-engine-python.md)
+instead of assuming concurrent `open_store(...)` calls on one adapter instance
+are the intended scaling path.
 
 ## When To Add A Database Candidate Stage
 
@@ -214,7 +284,9 @@ For concrete code against different systems, see:
 
 - [Vector Database Integrations](vector-databases.md)
 - [API Reference](api.md)
+- [batch-search-on-one-loaded-lancedb-slice.ipynb](notebooks/batch-search-on-one-loaded-lancedb-slice.ipynb)
 - [lancedb-to-kayak-reranking.ipynb](notebooks/lancedb-to-kayak-reranking.ipynb)
+- [pgvector-to-kayak-exact-search.ipynb](notebooks/pgvector-to-kayak-exact-search.ipynb)
 - [qdrant-to-kayak-reranking.ipynb](notebooks/qdrant-to-kayak-reranking.ipynb)
 - [weaviate-to-kayak-reranking.ipynb](notebooks/weaviate-to-kayak-reranking.ipynb)
 - [chromadb-to-kayak-reranking.ipynb](notebooks/chromadb-to-kayak-reranking.ipynb)

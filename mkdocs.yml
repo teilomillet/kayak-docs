@@ -40,6 +40,7 @@ nav:
   - Guides:
     - Late Interaction: concepts.md
     - Search Plans: search-plans.md
+    - Hosted Engine Python: hosted-engine-python.md
     - Vector Databases: vector-databases.md
   - API Reference: api.md
 
