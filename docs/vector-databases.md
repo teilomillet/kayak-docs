@@ -12,6 +12,32 @@ The main integration shape is:
 If you want the explicit “keep the DB for saving, let Kayak search” story, read
 [Storage + Search](storage-and-search.md) first.
 
+## Best-Fit Summary
+
+| Store | Best fit right now | What to assume by default |
+| --- | --- | --- |
+| PgVector | Postgres is already your durable store and you want exact filtered slices locally | use `load_index(...)` first, not a custom bridge |
+| Qdrant | you want native multivectors and optional candidate handoff | native storage is a strong fit, but still measure whether a full loaded slice is simpler |
+| Weaviate | you want named self-provided multivectors or embedded demos | current public adapter is exact, but `where=` is not DB-side pushdown yet |
+| LanceDB | you want local file-backed multivector storage and a straightforward exact slice | a one-time load plus Kayak exact search is the default thing to test first |
+| Chroma | you already rely on dense retrieval there and want Kayak exact reranking or exact loaded slices | Chroma is not a native late-interaction engine, so judge it as a compatibility path |
+| Milvus | you want the handoff pattern more than a shipped public notebook | treat it as a documented integration shape, not a finished public walkthrough yet |
+
+## Default Operational Bias
+
+If you are not sure which pattern to use, start by testing:
+
+1. one filtered exact slice loaded into Kayak
+2. exact Kayak search on that slice
+3. only then a database candidate stage plus exact rerank
+
+Reason:
+
+- the database candidate stage adds one more moving part
+- if the slice already fits locally, full Kayak exact search can be simpler
+- current local evidence already shows cases where the full exact Kayak path is
+  as good or better than the rerank handoff shape
+
 ## Choose An Adapter
 
 | Store | Best when you want... | Native multivectors | Executed notebook |

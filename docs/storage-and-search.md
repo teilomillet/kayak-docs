@@ -8,6 +8,38 @@ The default Kayak shape is simple:
 2. keep filtering and metadata there if you need them
 3. let Kayak own retrieval and surfacing
 
+<figure class="kayak-figure">
+  <img src="assets/storage-handoff.svg" alt="Diagram of the vector database handoff into Kayak exact search using load_index on a filtered exact slice.">
+  <figcaption>Default storage pattern: keep persistence in the database, materialize one exact slice into Kayak, and search that slice directly.</figcaption>
+</figure>
+
+## Current Recommendation In One Screen
+
+| Situation | Default choice | Reason |
+| --- | --- | --- |
+| the searchable slice fits locally | full Kayak exact retrieval | simplest path and easiest thing to measure |
+| the database is already your durable system of record | `open_store(...)` plus `load_index(...)` | keeps persistence where it is and gives Kayak one reusable exact slice |
+| many queries hit the same fixed slice | `load_index(...)` once, then `search_batch(...)` | avoids repeated slice materialization |
+| the full slice is too large or must be routed first | database candidate stage plus exact Kayak search | use the database only when it actually reduces the working set enough to justify the handoff |
+
+## Local Evidence Snapshot
+
+These are measured examples from the executed notebooks and benchmark-backed
+docs pages. They are useful deployment evidence, not universal benchmark
+claims.
+
+| Scenario | Measured result | What it means |
+| --- | --- | --- |
+| BrowseComp-Plus gold slice from LanceDB | same NDCG@10, Kayak exact search `21.154376159357273x` faster after a one-time `0.20880537503398955` second load | if the filtered slice fits, loading once and searching in Kayak can preserve quality and materially reduce search time |
+| BrowseComp-Plus evidence slice from LanceDB | same NDCG@10, Kayak exact search `12.52156994765039x` faster after a one-time `0.21453558304347098` second load | the same storage-first, search-in-Kayak pattern held on a second slice |
+| small repeated-query LanceDB example on one loaded slice | explicit loaded-slice `search_batch(...)` was `154.42x` faster than looping `retriever.search_text(...)` on the same local example | once the slice is loaded, batch search is the right public fast path when query traffic changes more than the data |
+| the same repeated-query example through the high-level retriever | `retriever.search_text_batch(...)` was `1.029x` vs a per-query loop | the high-level retriever batch path is mainly about convenience; the biggest gain came from reusing the explicit loaded slice |
+
+<figure class="kayak-figure">
+  <img src="assets/benchmark-snapshot.svg" alt="Bar chart summarizing local measured speedup snapshots for LanceDB exact search and loaded-slice batch search.">
+  <figcaption>Visual summary of the current local measured examples already documented on this page and in the executed notebooks.</figcaption>
+</figure>
+
 ## Choose The Storage Shape
 
 === "Use Full Kayak Retrieval"
@@ -204,6 +236,10 @@ That path is well documented and matches the current public SDK contract:
 - `load_index(...)` materializes one reusable exact slice
 - `search(...)`, `maxsim(...)`, `search_batch(...)`, and `maxsim_batch(...)`
   run on that loaded slice
+
+The executed local notebook for this path is:
+
+- [batch-search-on-one-loaded-lancedb-slice.ipynb](notebooks/batch-search-on-one-loaded-lancedb-slice.ipynb)
 
 ## What Is Not Promised Here
 

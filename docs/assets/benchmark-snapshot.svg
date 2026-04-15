@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" fill="none">
+  <rect width="1200" height="560" rx="28" fill="#F8FAFC"/>
+  <rect x="30" y="30" width="1140" height="500" rx="24" fill="#FFFFFF" stroke="#D7E2EA"/>
+  <text x="70" y="92" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">Local measured snapshot</text>
+  <text x="70" y="124" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">Speedup examples already documented in the notebooks and integration pages.</text>
+
+  <text x="120" y="190" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">LanceDB gold slice</text>
+  <rect x="120" y="208" width="720" height="34" rx="17" fill="#CCFBF1"/>
+  <text x="858" y="231" fill="#115E59" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">21.15x</text>
+
+  <text x="120" y="280" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">LanceDB evidence slice</text>
+  <rect x="120" y="298" width="425" height="34" rx="17" fill="#99F6E4"/>
+  <text x="563" y="321" fill="#115E59" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">12.52x</text>
+
+  <text x="120" y="370" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">Loaded-slice batch vs per-query loop</text>
+  <rect x="120" y="388" width="940" height="34" rx="17" fill="#14B8A6"/>
+  <text x="1078" y="411" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">154.42x</text>
+
+  <text x="120" y="460" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">Retriever batch vs per-query loop</text>
+  <rect x="120" y="478" width="62" height="34" rx="17" fill="#CFFAFE"/>
+  <text x="200" y="501" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">1.029x</text>
+
+  <text x="780" y="178" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="16">Same quality on the two BrowseComp-Plus slices already documented on the storage page.</text>
+  <text x="780" y="270" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="16">One-time load cost was about 0.21s on both LanceDB slices.</text>
+  <text x="780" y="356" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="16">This is the strongest public repeated-query signal: load once, then reuse the exact slice.</text>
+  <text x="780" y="448" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="16">The high-level retriever batch API is still convenient, but the main speedup came from reusing the explicit loaded slice.</text>
+</svg>

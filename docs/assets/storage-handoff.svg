@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" fill="none">
+  <rect width="1200" height="520" rx="28" fill="#F8FAFC"/>
+  <rect x="30" y="30" width="1140" height="460" rx="24" fill="#FFFFFF" stroke="#D7E2EA"/>
+  <text x="70" y="92" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">Vector database handoff</text>
+  <text x="70" y="124" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">Keep persistence in the database. Move the exact searchable slice into Kayak only when you need to search it.</text>
+
+  <rect x="70" y="180" width="240" height="180" rx="22" fill="#F8FAFC" stroke="#D7E2EA"/>
+  <text x="98" y="220" fill="#14B8A6" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700">STORAGE</text>
+  <text x="98" y="252" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">Vector DB</text>
+  <text x="98" y="286" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">Durable rows, metadata,</text>
+  <text x="98" y="310" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">tenancy, and optional filters.</text>
+  <text x="98" y="342" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="18">Examples:</text>
+  <text x="98" y="368" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="18">PgVector, Qdrant, LanceDB</text>
+
+  <rect x="390" y="180" width="260" height="180" rx="22" fill="#F8FAFC" stroke="#D7E2EA"/>
+  <text x="418" y="220" fill="#14B8A6" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700">LOAD</text>
+  <text x="418" y="252" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">Exact slice</text>
+  <text x="418" y="286" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">`store.load_index(...)`</text>
+  <text x="418" y="318" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">materializes one reusable</text>
+  <text x="418" y="342" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">LateIndex in Kayak.</text>
+
+  <rect x="730" y="180" width="240" height="180" rx="22" fill="#F8FAFC" stroke="#D7E2EA"/>
+  <text x="758" y="220" fill="#14B8A6" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700">SEARCH</text>
+  <text x="758" y="252" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">Kayak exact</text>
+  <text x="758" y="286" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">Use `search(...)`,</text>
+  <text x="758" y="310" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">`maxsim(...)`, or</text>
+  <text x="758" y="334" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">`search_batch(...)`.</text>
+
+  <rect x="1010" y="180" width="120" height="180" rx="22" fill="#CCFBF1" stroke="#99F6E4"/>
+  <text x="1036" y="220" fill="#115E59" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700">WHEN NEEDED</text>
+  <text x="1034" y="258" fill="#115E59" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">DB</text>
+  <text x="1030" y="282" fill="#115E59" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">candidate</text>
+  <text x="1037" y="306" fill="#115E59" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">stage</text>
+  <text x="1030" y="340" fill="#115E59" font-family="Inter, Arial, sans-serif" font-size="16">Only add this if</text>
+  <text x="1032" y="362" fill="#115E59" font-family="Inter, Arial, sans-serif" font-size="16">the full slice is</text>
+  <text x="1039" y="384" fill="#115E59" font-family="Inter, Arial, sans-serif" font-size="16">too large.</text>
+
+  <path d="M310 270H362" stroke="#14B8A6" stroke-width="6" stroke-linecap="round"/>
+  <path d="M350 254L382 270L350 286" fill="none" stroke="#14B8A6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path d="M650 270H702" stroke="#14B8A6" stroke-width="6" stroke-linecap="round"/>
+  <path d="M690 254L722 270L690 286" fill="none" stroke="#14B8A6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path d="M970 270H982" stroke="#0F172A" stroke-width="6" stroke-linecap="round"/>
+  <path d="M976 254L1008 270L976 286" fill="none" stroke="#0F172A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <text x="70" y="430" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700">Default bias</text>
+  <text x="70" y="462" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">First test whether one filtered exact slice loaded into Kayak is already good enough. Add the database candidate stage only when the slice is too large or routing requirements force it.</text>
+</svg>

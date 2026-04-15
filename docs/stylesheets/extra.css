@@ -64,6 +64,28 @@
   border-radius: 999px;
 }
 
+.kayak-figure {
+  margin: 1.2rem 0 1.8rem;
+  padding: 0.8rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 1rem;
+  background: rgba(248, 250, 252, 0.72);
+}
+
+.kayak-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.7rem;
+}
+
+.kayak-figure figcaption {
+  margin-top: 0.75rem;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
 .md-typeset h2 {
   margin-top: 2.2rem;
   padding-top: 0.2rem;

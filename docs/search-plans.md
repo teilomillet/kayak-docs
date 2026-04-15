@@ -12,6 +12,11 @@ The important thing for Mojo users is this:
 
 That makes search plans the right place to reason about both quality and cost.
 
+<figure class="kayak-figure">
+  <img src="assets/search-plan-stages.svg" alt="Diagram showing search plan stages: input query and index, stage 1 candidate generation, stage 2 exact rerank, and optional stage 3 verification.">
+  <figcaption>Search plans make the candidate stage, exact rerank stage, and optional verifier stage explicit instead of hiding them behind one search call.</figcaption>
+</figure>
+
 ## Choose The Plan Task
 
 === "I Need The Exact Baseline"

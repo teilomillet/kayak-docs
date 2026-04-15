@@ -57,6 +57,20 @@ Hosted-engine Python note:
 
     - [Hosted Engine Python](hosted-engine-python.md)
 
+## Common Calls Cheat Sheet
+
+| If you want to... | Use... | Read... |
+| --- | --- | --- |
+| ingest text and search with one object | `kayak.open_text_retriever(...)` | [Usage Patterns](usage-patterns.md) |
+| encode with a ColBERT checkpoint from Hugging Face | `kayak.open_encoder("colbert", model_name="...")` | [Text Encoders](text-encoders.md) |
+| wrap your own token-level model methods | `kayak.open_encoder("callable", ...)` | [Text Encoders](text-encoders.md) |
+| run one exact search from vectors | `kayak.query(...)` + `kayak.documents(...).pack()` + `kayak.search(...)` | [Quickstart](quickstart.md) |
+| get the full score vector instead of only top-k | `kayak.maxsim(...)` | [Usage Patterns](usage-patterns.md) |
+| run many queries against one fixed index | `kayak.query_batch(...)` + `kayak.search_batch(...)` | [Usage Patterns](usage-patterns.md) |
+| keep an existing vector database for storage | `kayak.open_store(...)` + `store.load_index(...)` | [Storage + Search](storage-and-search.md) |
+| run a stage-1 candidate step plus exact rerank | `kayak.document_proxy_search_plan(...)` + `kayak.search_with_plan(...)` | [Search Plans](search-plans.md) |
+| check whether Mojo is actually available | `kayak.available_backends()` + `kayak.backend_info(...)` | [Using the Mojo Backend](mojo-backend.md) |
+
 ## Constructors
 
 ### `kayak.open_encoder(kind, **kwargs)`

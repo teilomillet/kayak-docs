@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500" fill="none">
+  <rect width="1200" height="500" rx="28" fill="#F8FAFC"/>
+  <rect x="30" y="30" width="1140" height="440" rx="24" fill="#FFFFFF" stroke="#D7E2EA"/>
+  <text x="70" y="92" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">Search plan stages</text>
+  <text x="70" y="124" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">The plan object describes the pipeline first. Execution happens only when you call search_with_plan(...).</text>
+
+  <rect x="70" y="190" width="240" height="170" rx="22" fill="#F8FAFC" stroke="#D7E2EA"/>
+  <text x="98" y="230" fill="#14B8A6" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700">INPUT</text>
+  <text x="98" y="262" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">Query + Index</text>
+  <text x="98" y="296" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">One query, one index,</text>
+  <text x="98" y="320" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">one explicit plan,</text>
+  <text x="98" y="344" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">one backend.</text>
+
+  <rect x="360" y="190" width="240" height="170" rx="22" fill="#F8FAFC" stroke="#D7E2EA"/>
+  <text x="388" y="230" fill="#14B8A6" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700">STAGE 1</text>
+  <text x="388" y="262" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">Candidates</text>
+  <text x="388" y="296" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">Exact full scan or</text>
+  <text x="388" y="320" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">document proxy.</text>
+  <text x="388" y="344" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">This is the recall gate.</text>
+
+  <rect x="650" y="190" width="240" height="170" rx="22" fill="#F8FAFC" stroke="#D7E2EA"/>
+  <text x="678" y="230" fill="#14B8A6" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700">STAGE 2</text>
+  <text x="678" y="262" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">Exact rerank</text>
+  <text x="678" y="296" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">Late interaction on the</text>
+  <text x="678" y="320" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">candidate window.</text>
+  <text x="678" y="344" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">Backend matters here.</text>
+
+  <rect x="940" y="190" width="190" height="170" rx="22" fill="#F8FAFC" stroke="#D7E2EA"/>
+  <text x="968" y="230" fill="#14B8A6" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700">STAGE 3</text>
+  <text x="968" y="262" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">Verifier</text>
+  <text x="968" y="296" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">Optional text-aware</text>
+  <text x="968" y="320" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="18">post-filtering.</text>
+
+  <path d="M310 275H332" stroke="#14B8A6" stroke-width="6" stroke-linecap="round"/>
+  <path d="M326 259L358 275L326 291" fill="none" stroke="#14B8A6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M600 275H622" stroke="#14B8A6" stroke-width="6" stroke-linecap="round"/>
+  <path d="M616 259L648 275L616 291" fill="none" stroke="#14B8A6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M890 275H912" stroke="#14B8A6" stroke-width="6" stroke-linecap="round"/>
+  <path d="M906 259L938 275L906 291" fill="none" stroke="#14B8A6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <rect x="70" y="390" width="1060" height="44" rx="22" fill="#CCFBF1"/>
+  <text x="100" y="418" fill="#115E59" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">If Stage 1 misses the relevant documents, Stage 2 cannot recover them. That is why Kayak exposes candidate generation and stage profiles directly.</text>
+</svg>
