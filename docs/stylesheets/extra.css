@@ -343,8 +343,7 @@ body {
 }
 
 .kayak-stat-list,
-.kayak-link-list,
-.kayak-pill-row > ul {
+.kayak-link-list {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -381,22 +380,6 @@ body {
   line-height: 1.45;
 }
 
-.kayak-pill-row > ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  margin-top: 1rem;
-}
-
-.kayak-pill-row > ul > li {
-  padding: 0.38rem 0.72rem;
-  border-radius: 999px;
-  border: 1px solid var(--kayak-border);
-  background: var(--kayak-surface-subtle);
-  color: var(--kayak-muted-strong);
-  font-size: 0.74rem;
-  font-weight: 700;
-}
 
 .kayak-card-grid {
   display: grid;
@@ -445,20 +428,6 @@ body {
   background: var(--kayak-surface);
 }
 
-.kayak-section-intro {
-  max-width: 52rem;
-  margin: 0.4rem 0 1.2rem;
-  color: var(--kayak-muted);
-}
-
-.kayak-checklist {
-  margin: 0;
-  padding-left: 1.15rem;
-}
-
-.kayak-checklist li + li {
-  margin-top: 0.45rem;
-}
 
 .kayak-link-list {
   display: grid;

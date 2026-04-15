@@ -3,7 +3,6 @@ site_description: Late-interaction retrieval for Python with an explicit Mojo ex
 site_url: https://docs.withkayak.com
 repo_url: https://github.com/teilomillet/kayak-docs
 repo_name: teilomillet/kayak-docs
-edit_uri: edit/main/docs/
 
 theme:
   name: material
@@ -27,25 +26,16 @@ theme:
     code: IBM Plex Mono
   features:
     - navigation.instant
-    - navigation.instant.prefetch
-    - navigation.path
     - navigation.tabs
     - navigation.tabs.sticky
-    - navigation.sections
     - navigation.indexes
-    - navigation.expand
     - navigation.footer
     - navigation.top
     - navigation.tracking
     - search.suggest
-    - search.share
     - search.highlight
-    - content.action.edit
-    - content.action.view
     - content.code.copy
-    - content.code.annotate
     - content.tabs.link
-    - content.tooltips
     - toc.follow
 
 nav:
@@ -78,15 +68,8 @@ markdown_extensions:
   - md_in_html
   - pymdownx.highlight:
       anchor_linenums: true
-  - pymdownx.inlinehilite
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
-  - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
-  - admonition
-  - pymdownx.details
   - attr_list
-  - def_list
   - tables
