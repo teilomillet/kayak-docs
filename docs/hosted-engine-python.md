@@ -82,6 +82,7 @@ runtime = prepare_exact_search_runtime(
     namespace_id="search",
     snapshot_id="snapshot-0001",
     config=PreparedExactSearchRuntimeConfig(
+        concurrency_lane_count=2,
         worker_count=4,
         max_batch_size=32,
         max_batch_wait_ms=2,
@@ -100,6 +101,7 @@ response = runtime.search(
 The runtime keeps policy explicit through:
 
 - `execution_backend`
+- `concurrency_lane_count`
 - `worker_count`
 - `max_batch_size`
 - `max_batch_wait_ms`
@@ -116,11 +118,26 @@ Reason:
 - the threaded Python-to-Mojo exact-search path was not stable in current local
   evidence
 
+Current lane meaning:
+
+- under the verified `process` backend, each concurrency lane is one worker
+  process with its own prepared snapshot state
+
+Tradeoff:
+
+- larger `concurrency_lane_count` can increase same-snapshot concurrent search
+  capacity
+- each additional lane also increases prepared-snapshot memory use and worker
+  startup cost
+
 Use:
 
+- `concurrency_lane_count` to choose how many independent runtime lanes you
+  want
 - smaller `max_batch_wait_ms` for lower tail latency
 - larger `max_batch_size` when throughput matters more than single-request latency
-- explicit `worker_count` because the right value depends on hardware and query shape
+- explicit `worker_count` to choose the Mojo batch-kernel parallelism inside one
+  lane
 
 ## Concurrent Submitters
 

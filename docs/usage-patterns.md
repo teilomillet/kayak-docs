@@ -275,6 +275,7 @@ runtime = prepare_exact_search_runtime(
     namespace_id="search",
     snapshot_id="snapshot-0001",
     config=PreparedExactSearchRuntimeConfig(
+        concurrency_lane_count=2,
         worker_count=4,
         max_batch_size=32,
         max_batch_wait_ms=2,
@@ -287,6 +288,7 @@ Use:
 - `kayak.search_batch(...)` when you already loaded one local `LateIndex`
 - `kayak_engine.prepare_exact_search_runtime(...)` when many callers share one fixed hosted snapshot
 - `kayak_engine.prepare_exact_search_scheduler(...)` only as a compatibility alias
+- `concurrency_lane_count` when you need more than one independent runtime lane
 - [Hosted Engine Python](hosted-engine-python.md) for the full runtime contract
 
 ## Clause-Text Verification
