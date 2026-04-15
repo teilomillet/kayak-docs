@@ -15,6 +15,35 @@ Keep this simple:
 3. if you want one object for text ingest plus search, pass that encoder into
    `kayak.open_text_retriever(...)`
 
+## Choose The Encoder Path
+
+=== "I Have A Hugging Face ColBERT Checkpoint"
+
+    Use:
+
+    - `kayak.open_encoder("colbert", model_name="...")`
+
+    Choose this when your model is already a ColBERT checkpoint and you want the
+    shortest supported setup.
+
+=== "I Have My Own Model Methods"
+
+    Use:
+
+    - `kayak.open_encoder("callable", query_encoder=..., document_encoder=...)`
+
+    Choose this when you already control the model wrapper and only need Kayak
+    to consume the token-level vectors it emits.
+
+=== "I Want One Search Object"
+
+    Use:
+
+    - `kayak.open_text_retriever(...)`
+
+    Choose this when your application starts from text and you want one SDK
+    object that owns encoder plus store wiring.
+
 ## The Two Main Paths
 
 ### 1. ColBERT From A Hugging Face Repo Id

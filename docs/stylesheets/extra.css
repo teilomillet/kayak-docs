@@ -35,6 +35,18 @@
   overflow: hidden;
 }
 
+.md-typeset .tabbed-set {
+  margin: 1.2rem 0 1.6rem;
+}
+
+.md-typeset .tabbed-labels > label {
+  font-weight: 600;
+}
+
+.md-typeset .tabbed-content {
+  padding-top: 0.35rem;
+}
+
 .md-typeset .admonition,
 .md-typeset details {
   border-radius: 0.85rem;

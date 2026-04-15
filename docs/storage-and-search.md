@@ -8,6 +8,51 @@ The default Kayak shape is simple:
 2. keep filtering and metadata there if you need them
 3. let Kayak own retrieval and surfacing
 
+## Choose The Storage Shape
+
+=== "Use Full Kayak Retrieval"
+
+    Choose this when the searchable slice fits on the target host and you do
+    not need a database candidate stage before search.
+
+    Use:
+
+    - `kayak.open_text_retriever(...)` if your inputs start as text
+    - `kayak.documents(...).pack()` plus `kayak.search(...)` if you already own vectors
+
+=== "Keep The DB, Load One Exact Slice"
+
+    Choose this when the database is your durable store and you want Kayak to
+    own retrieval on the filtered working set.
+
+    Use:
+
+    - `kayak.open_store(...)`
+    - `store.load_index(...)`
+    - `kayak.search(...)` or `kayak.search_batch(...)`
+
+=== "Use A DB Candidate Stage First"
+
+    Choose this only when the full slice is too large to search directly or you
+    need database-side routing before exact scoring.
+
+    Use:
+
+    - the database for stage-1 candidate selection
+    - `kayak.documents(...).pack()` for the candidate window
+    - `kayak.search(...)` for exact late-interaction scoring
+
+=== "Serve Many Queries On One Loaded Slice"
+
+    Choose this when the rows stay fixed for a while and the query traffic is
+    the part that changes.
+
+    Use:
+
+    - `store.load_index(...)` once
+    - `kayak.search(...)` for one query at a time
+    - `kayak.search_batch(...)` when queries arrive together
+
 ## Default Recommendation
 
 Use full Kayak retrieval when the searchable slice:

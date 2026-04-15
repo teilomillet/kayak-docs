@@ -25,6 +25,55 @@ If you are choosing an encoder first, read:
 
 - [Text Encoders](text-encoders.md)
 
+## Choose The API Shape
+
+=== "I Start From Text"
+
+    Use one retriever object:
+
+    - `kayak.open_text_retriever(...)`
+    - `retriever.upsert_texts(...)`
+    - `retriever.search_text(...)`
+    - `retriever.search_text_batch(...)` for repeated query traffic
+
+    Choose this when your application inputs are raw text and you do not want to
+    manage encoder and store objects separately.
+
+=== "I Already Have Vectors"
+
+    Use the low-level exact search surface:
+
+    - `kayak.query(...)`
+    - `kayak.documents(...).pack()`
+    - `kayak.search(...)`
+    - `kayak.search_batch(...)` when the same index serves many queries
+
+    Choose this when your application already owns token-level query and
+    document vectors.
+
+=== "I Want To Keep My Database"
+
+    Keep the database for persistence and let Kayak materialize the searchable
+    slice:
+
+    - `kayak.open_store(...)`
+    - `store.load_index(...)`
+    - `kayak.search(...)` or `kayak.search_batch(...)`
+
+    Choose this when LanceDB, PgVector, Qdrant, Weaviate, or Chroma is already
+    part of your system.
+
+=== "I Need Profiles Or Candidate Stages"
+
+    Use an explicit search plan:
+
+    - `kayak.exact_full_scan_search_plan(...)`
+    - `kayak.document_proxy_search_plan(...)`
+    - `kayak.search_with_plan(...)`
+
+    Choose this when you need stage accounting, candidate windows, or exact
+    reranking after an approximate first stage.
+
 ## Text Ingest Plus Search
 
 Use this when your application starts from text and you want one SDK object for

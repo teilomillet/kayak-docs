@@ -12,6 +12,54 @@ The main integration shape is:
 If you want the explicit “keep the DB for saving, let Kayak search” story, read
 [Storage + Search](storage-and-search.md) first.
 
+## Choose An Adapter
+
+| Store | Best when you want... | Native multivectors | Executed notebook |
+| --- | --- | --- | --- |
+| PgVector | Postgres as the durable store plus local exact filtered slices | yes | yes |
+| Qdrant | server or local multivector storage plus candidate handoff | yes | yes |
+| Weaviate | named multivectors and embedded demos | yes | yes |
+| LanceDB | local file-backed multivector storage | yes | yes |
+| Chroma | dense stage-1 storage plus exact Kayak rerank or exact loaded slices | no | yes |
+| Milvus | server-side multivector pattern documentation | partial client-side support | not yet |
+
+## Choose The Integration Shape
+
+=== "Exact Slice From The Database"
+
+    Use this when the filtered slice already fits locally and you want Kayak to
+    own exact retrieval after one load.
+
+    Prefer:
+
+    - PgVector
+    - Qdrant
+    - Weaviate
+    - LanceDB
+    - Chroma through the public compatibility adapter
+
+=== "Database Candidate Stage Plus Kayak"
+
+    Use this when the database should first reduce the working set and Kayak
+    should then do the exact token-level scoring.
+
+    Prefer:
+
+    - Qdrant
+    - Weaviate
+    - LanceDB
+    - Chroma when you already rely on dense retrieval there
+
+=== "Postgres Is Already My System Of Record"
+
+    Use PgVector when your rows, filters, and operational model already live in
+    Postgres and you want the smallest new moving part count.
+
+=== "I Need A Pattern, Not A Finished Adapter"
+
+    Use the Milvus section when you want the documented handoff shape but do not
+    need a shipped executed notebook yet.
+
 ## Executed Notebooks
 
 These notebooks are included with the docs:

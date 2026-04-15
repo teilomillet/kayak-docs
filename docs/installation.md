@@ -31,6 +31,63 @@ That distinction is verified in the code:
 - low-level operations like `search(...)` and `maxsim(...)` never auto-switch from NumPy to Mojo
 - `open_text_retriever(...)` prefers Mojo automatically when the backend is actually available
 
+## Choose Your Install Path
+
+=== "I Want Mojo Now"
+
+    Use one environment where Python, Mojo, and Kayak live together.
+
+    ```bash
+    pixi add python=3.11 "mojo>=0.26.3.0.dev2026041020,<0.27"
+    pixi add --pypi kayak
+    ```
+
+    Then verify:
+
+    ```bash
+    pixi run python - <<'PY'
+    import kayak
+    print(kayak.available_backends())
+    print(kayak.backend_info(kayak.MOJO_EXACT_CPU_BACKEND).availability_reason)
+    PY
+    ```
+
+    Use this when you want the shortest verified path to `mojo_exact_cpu`.
+
+=== "I Already Have Mojo"
+
+    If a usable `mojo` CLI is already in the active environment or on `PATH`,
+    you can keep using UV or pip.
+
+    ```bash
+    mojo --version
+    uv add kayak
+    uv run python - <<'PY'
+    import kayak
+    print(kayak.available_backends())
+    print(kayak.backend_info(kayak.MOJO_EXACT_CPU_BACKEND).availability_reason)
+    PY
+    ```
+
+    Use this when your environment already owns Mojo and you just need Kayak to
+    see it.
+
+=== "I Only Need Python First"
+
+    Install Kayak by itself:
+
+    ```bash
+    uv add kayak
+    ```
+
+    In that setup Kayak works, but only the NumPy backend is available:
+
+    ```python
+    ('numpy_reference',)
+    ```
+
+    Use this when you want to start with the Python SDK now and add Mojo later.
+
 ## One Verified Way: One Environment With Mojo Plus Kayak
 
 Kayak currently validates the Mojo dependency in the range:
