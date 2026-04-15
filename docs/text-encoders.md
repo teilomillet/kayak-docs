@@ -62,7 +62,7 @@ hits = retriever.search_text("install python and mojo together", k=10)
 
 Runnable example:
 
-- [`python/examples/colbert_hf_encoder.py`](../../python/examples/colbert_hf_encoder.py)
+- `python/examples/colbert_hf_encoder.py`
 
 ## 2. Bring Your Own Model
 
@@ -113,7 +113,7 @@ retriever = kayak.open_text_retriever(
 
 Runnable example:
 
-- [`python/examples/byo_model_encoder.py`](../../python/examples/byo_model_encoder.py)
+- `python/examples/byo_model_encoder.py`
 
 ## What Your Model Must Return
 

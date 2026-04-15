@@ -1,0 +1,41 @@
+.md-main__inner {
+  max-width: 76rem;
+}
+
+.md-typeset h1 {
+  margin-bottom: 0.6rem;
+  letter-spacing: -0.02em;
+}
+
+.md-typeset h2 {
+  margin-top: 2.2rem;
+  padding-top: 0.2rem;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.md-typeset .grid.cards > ul {
+  gap: 0.9rem;
+}
+
+.md-typeset .grid.cards > ul > li {
+  border-radius: 0.9rem;
+  box-shadow: 0 0 0 1px var(--md-default-fg-color--lightest);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.md-typeset .grid.cards > ul > li:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 1px var(--md-primary-fg-color--light),
+    0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.md-typeset table:not([class]) {
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.md-typeset .admonition,
+.md-typeset details {
+  border-radius: 0.85rem;
+}

@@ -13,6 +13,65 @@ It keeps the parts that matter explicit:
 That is the point of the SDK. You should be able to see what the retrieval
 pipeline is doing, measure it, and change it deliberately.
 
+<div class="grid cards" markdown>
+
+- __Install and get one working Mojo setup__
+
+  Start here if your goal is simply "make `import kayak` use the Mojo backend
+  correctly."
+
+  [Open installation guide](installation.md)
+
+- __Choose the right API shape__
+
+  Use this when you want to know whether you should open a retriever, load one
+  reusable index, call `search_batch(...)`, or move to a search plan.
+
+  [Open usage patterns](usage-patterns.md)
+
+- __Start from text or your own model__
+
+  Use the built-in ColBERT encoder for ColBERT checkpoints, or wrap your own
+  model with the callable encoder.
+
+  [Open text encoders](text-encoders.md)
+
+- __Keep your existing database__
+
+  Use Kayak as the search engine while LanceDB, PgVector, Qdrant, Weaviate, or
+  Chroma stay responsible for persistence.
+
+  [Open storage and integrations](storage-and-search.md)
+
+- __Open a real executed example__
+
+  Use this when you want a notebook or script, not another conceptual page.
+
+  [Open examples](examples.md)
+
+- __Look up exact APIs__
+
+  Use this when you already know the path and just want the stable Python
+  surface.
+
+  [Open API reference](api.md)
+
+</div>
+
+## The Main User Paths
+
+Most users fall into one of these shapes:
+
+| If you want to... | Start here |
+| --- | --- |
+| get one Mojo-capable install working | [Installation](installation.md) |
+| run one local exact search quickly | [Quickstart](quickstart.md) |
+| choose between retriever, batch search, and plans | [Usage Patterns](usage-patterns.md) |
+| pass a Hugging Face ColBERT checkpoint or your own model | [Text Encoders](text-encoders.md) |
+| keep your vector database and let Kayak search | [Storage + Search](storage-and-search.md) |
+| inspect adapter-specific facts and notebooks | [Vector Databases](vector-databases.md) |
+| serve many same-process callers on one fixed hosted snapshot | [Hosted Engine Python](hosted-engine-python.md) |
+
 ## If You Want Mojo, Make Mojo Available
 
 If your goal is to use the Mojo backend, do not stop at:
@@ -37,6 +96,11 @@ Mojo is already installed and discoverable through the active environment,
 `PATH`, or `KAYAK_MOJO_CLI`.
 
 Use the [installation guide](installation.md) for the exact workflow.
+
+!!! note "Short version"
+    `uv add kayak` installs the Python SDK. It does not install Mojo.
+    If you want the Mojo backend, make sure Kayak can discover a usable
+    `mojo` CLI in the same environment.
 
 ## What The Mojo Backend Is For
 
@@ -162,6 +226,7 @@ That makes it practical to answer questions like:
 - [Installation](installation.md) for the Mojo-capable install paths
 - [Quickstart](quickstart.md) for a working Mojo-first script
 - [Text Encoders](text-encoders.md) for ColBERT-from-HF and bring-your-own-model usage
+- [Examples](examples.md) for executed notebooks and small Python scripts
 - [Usage Patterns](usage-patterns.md) for which API to call for each task
 - [Storage + Search](storage-and-search.md) for the vector-db-as-storage, Kayak-as-search-engine deployment shape
 - [Hosted Engine Python](hosted-engine-python.md) for many same-process callers against one fixed hosted snapshot
