@@ -1,0 +1,1270 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Late-interaction retrieval for Python with an explicit Mojo exact CPU backend">
+      
+      
+      
+        <link rel="canonical" href="https://docs.withkayak.com/concepts/">
+      
+      
+        <link rel="prev" href="../mojo-backend/">
+      
+      
+        <link rel="next" href="../search-plans/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Late Interaction - kayak</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#late-interaction" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="kayak" class="md-header__button md-logo" aria-label="kayak" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            kayak
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Late Interaction
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../installation/" class="md-tabs__link">
+          
+  
+  
+  Get Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../api/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Reference
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="kayak" class="md-nav__button md-logo" aria-label="kayak" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    kayak
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Get Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Get Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage-patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../storage-and-search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage + Search
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mojo-backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using the Mojo Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Late Interaction
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Late Interaction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#dense-retrieval-vs-late-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dense Retrieval Vs. Late Interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#late-interaction-is-not-just-multi-vector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Late Interaction Is Not Just "Multi-Vector"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#late-interaction-is-not-just-colbert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Late Interaction Is Not Just "ColBERT"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#maxsim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MaxSim
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-vector-counts-matter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Vector Counts Matter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#layout-is-explicit-too" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layout Is Explicit Too
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-choice-changes-the-executor-not-the-math" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backend Choice Changes The Executor, Not The Math
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#candidate-generation-and-reranking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Candidate Generation And Reranking
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-reranking-alone-is-not-enough" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Reranking Alone Is Not Enough
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-retrieval-constraint-is-sublinear-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Retrieval Constraint Is Sublinear Search
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#colbert-style-128-dim-embeddings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ColBERT-Style 128-Dim Embeddings
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../search-plans/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Search Plans
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vector-databases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vector Databases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#dense-retrieval-vs-late-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dense Retrieval Vs. Late Interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#late-interaction-is-not-just-multi-vector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Late Interaction Is Not Just "Multi-Vector"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#late-interaction-is-not-just-colbert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Late Interaction Is Not Just "ColBERT"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#maxsim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MaxSim
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-vector-counts-matter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Vector Counts Matter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#layout-is-explicit-too" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layout Is Explicit Too
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-choice-changes-the-executor-not-the-math" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backend Choice Changes The Executor, Not The Math
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#candidate-generation-and-reranking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Candidate Generation And Reranking
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-reranking-alone-is-not-enough" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Reranking Alone Is Not Enough
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-retrieval-constraint-is-sublinear-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Retrieval Constraint Is Sublinear Search
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#colbert-style-128-dim-embeddings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ColBERT-Style 128-Dim Embeddings
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="late-interaction">Late Interaction</h1>
+<p>This page is about the model Kayak exposes, not just the method names.</p>
+<p>The SDK is designed so you can answer three questions directly from code:</p>
+<ol>
+<li>What exactly got scored?</li>
+<li>How many vectors did that require?</li>
+<li>Which backend executed the exact path?</li>
+</ol>
+<h2 id="dense-retrieval-vs-late-interaction">Dense Retrieval Vs. Late Interaction</h2>
+<p>Dense retrieval compresses the query to one vector and compresses each document
+to one vector. Ranking is then one dot product per document.</p>
+<p>Late interaction keeps token vectors explicit.</p>
+<p>The query and document are compared after encoding, at scoring time, not
+collapsed to one embedding first.</p>
+<p>That is more expressive, but it makes vector counts a first-class cost axis.</p>
+<h2 id="late-interaction-is-not-just-multi-vector">Late Interaction Is Not Just "Multi-Vector"</h2>
+<p>One useful distinction from the talk is this:</p>
+<ul>
+<li>many vectors are not enough on their own</li>
+<li>what matters is interaction at query time</li>
+</ul>
+<p>If you represent a document with many vectors but still collapse scoring to a
+plain pooled similarity, you have not recovered the main property that makes
+late interaction interesting.</p>
+<p>What matters is that query-time scoring can align query pieces with document
+pieces locally, instead of forcing everything through one global document
+embedding.</p>
+<p>For Kayak's current exact scorer, that local interaction is MaxSim.</p>
+<h2 id="late-interaction-is-not-just-colbert">Late Interaction Is Not Just "ColBERT"</h2>
+<p>ColBERT is an important concrete design point, but the broader idea is more
+general than one model family.</p>
+<p>The reusable concept is:</p>
+<ol>
+<li>keep fine-grained query and document representations</li>
+<li>let them interact at query time</li>
+<li>make the retrieval pipeline explicit enough to keep that interaction
+   searchable at scale</li>
+</ol>
+<p>Kayak's Python SDK is built around that broader idea, not around one particular
+paper checkpoint or training recipe.</p>
+<h2 id="maxsim">MaxSim</h2>
+<p>Kayak's exact scorer is MaxSim:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>score(query, doc) = sum over query tokens of the best matching document token
+</code></pre></div>
+<p>More explicitly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>score(query, doc) = sum_i max_j sim(q_i, d_j)
+</code></pre></div>
+<p>In code:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">scores</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">maxsim</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">kayak</span><span class="o">.</span><span class="n">MOJO_EXACT_CPU_BACKEND</span><span class="p">)</span>
+</code></pre></div>
+<p>The important property is that every query token gets its own best match.
+That is why token-level embeddings matter here.</p>
+<p>Another way to say this is that MaxSim gives you a lightweight alignment
+mechanism at query time. It is not full cross-attention, but it is much closer
+to local matching than a single document embedding can be.</p>
+<h2 id="why-vector-counts-matter">Why Vector Counts Matter</h2>
+<p>Exact late interaction cost scales with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>query_vector_count * document_vector_count
+</code></pre></div>
+<p>per document.</p>
+<p>If a query has 32 vectors and a document has 128 vectors, exact scoring that
+one document requires 4096 pairwise similarities before the per-query-token
+max reductions are summed.</p>
+<p>That is why Kayak keeps vector counts explicit in the API and the plan results.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">result</span><span class="o">.</span><span class="n">stage2_reference</span><span class="o">.</span><span class="n">query_vector_count</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">result</span><span class="o">.</span><span class="n">stage2_reference</span><span class="o">.</span><span class="n">document_vector_count</span>
+</code></pre></div>
+<p>Those fields are not metadata decoration. They are part of the retrieval budget.</p>
+<h2 id="layout-is-explicit-too">Layout Is Explicit Too</h2>
+<p>Kayak separates the semantic object model from the storage layout:</p>
+<ul>
+<li><code>LateQuery</code> can be <code>nested</code> or <code>flat_dim128</code></li>
+<li><code>LateIndex</code> can be <code>packed</code> or <code>hybrid_flat_dim128</code></li>
+</ul>
+<p>For 128-dimensional embeddings:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">flat_query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">to_layout</span><span class="p">(</span><span class="s2">&quot;flat_dim128&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">hybrid_index</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">to_layout</span><span class="p">(</span><span class="s2">&quot;hybrid_flat_dim128&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>Both conversions require <code>vector_dim == 128</code>.</p>
+<p>That layout choice matters for profiling, backend execution, and reproducible
+benchmark setup, so the SDK keeps it visible.</p>
+<h2 id="backend-choice-changes-the-executor-not-the-math">Backend Choice Changes The Executor, Not The Math</h2>
+<p>Kayak exposes two backends:</p>
+<ul>
+<li><code>kayak.NUMPY_REFERENCE_BACKEND</code></li>
+<li><code>kayak.MOJO_EXACT_CPU_BACKEND</code></li>
+</ul>
+<p>The backend should not change the scoring semantics. It changes which executor
+runs the exact path.</p>
+<p>That distinction matters for documentation and benchmarking:</p>
+<ul>
+<li>compare scores across backends when validating correctness</li>
+<li>compare latency only after the semantic path is fixed</li>
+<li>do not describe Mojo as a different retrieval algorithm</li>
+</ul>
+<h2 id="candidate-generation-and-reranking">Candidate Generation And Reranking</h2>
+<p>Exact MaxSim over every document is the correctness baseline.
+It is also expensive.</p>
+<p>That leads to the usual staged retrieval pattern:</p>
+<ol>
+<li>Stage 1 narrows the candidate set.</li>
+<li>Stage 2 runs exact late interaction on those candidates.</li>
+<li>Stage 3 can optionally do text-aware verification.</li>
+</ol>
+<p>In Kayak those stages are explicit objects and explicit profiles:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">plan</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">document_proxy_search_plan</span><span class="p">(</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">final_k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">candidate_k</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">query_vector_budget</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">document_vector_budget</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="p">)</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="n">result</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">search_with_plan</span><span class="p">(</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="n">query</span><span class="p">,</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="n">index</span><span class="p">,</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="n">plan</span><span class="p">,</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    <span class="n">backend</span><span class="o">=</span><span class="n">kayak</span><span class="o">.</span><span class="n">MOJO_EXACT_CPU_BACKEND</span><span class="p">,</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="p">)</span>
+</code></pre></div>
+<p>That means you can inspect:</p>
+<ul>
+<li>the approximate candidate set</li>
+<li>the exact rerank stage</li>
+<li>the query and document vector counts consumed by each stage</li>
+</ul>
+<h2 id="why-reranking-alone-is-not-enough">Why Reranking Alone Is Not Enough</h2>
+<p>The talk's strongest retrieval point is worth making explicit in the docs:</p>
+<p>if stage 1 never retrieves the right candidates, stage 2 cannot save you.</p>
+<p>That sounds obvious, but it is the reason Kayak exposes candidate generation,
+candidate windows, and stage profiles directly instead of hiding them.</p>
+<p>For example, if your approximate stage produces very low recall at
+<code>candidate_k=1000</code>, no exact reranker can reconstruct the documents that were
+never surfaced in the first place.</p>
+<p>That is why Kayak treats candidate generation and exact reranking as separate,
+inspectable stages.</p>
+<h2 id="the-retrieval-constraint-is-sublinear-search">The Retrieval Constraint Is Sublinear Search</h2>
+<p>Late interaction only becomes a retrieval paradigm, rather than just an exact
+scoring function, when you can combine local interaction with sublinear
+candidate retrieval.</p>
+<p>That is the key practical distinction:</p>
+<ul>
+<li>exact scoring tells you what the rich matching function is</li>
+<li>staged retrieval tells you how to use that matching function without touching
+  every document on every query</li>
+</ul>
+<p>Kayak's search-plan API exists to keep that boundary explicit.</p>
+<h2 id="colbert-style-128-dim-embeddings">ColBERT-Style 128-Dim Embeddings</h2>
+<p>The Mojo path is intended for ColBERT-style embeddings, where vectors are
+128-dimensional and queries and documents each carry multiple token vectors.</p>
+<p>That is the shape where:</p>
+<ul>
+<li><code>flat_dim128</code> and <code>hybrid_flat_dim128</code> layouts make sense</li>
+<li>explicit late-interaction benchmarking is meaningful</li>
+<li>the Mojo exact CPU backend is the path to optimize and measure</li>
+</ul>
+<p>If you are still sketching logic with tiny toy arrays, use the NumPy reference
+path. Use 128-dimensional examples when you want to exercise the real Mojo
+workflow.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.top", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

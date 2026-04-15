@@ -1,0 +1,1355 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Late-interaction retrieval for Python with an explicit Mojo exact CPU backend">
+      
+      
+      
+        <link rel="canonical" href="https://docs.withkayak.com/search-plans/">
+      
+      
+        <link rel="prev" href="../concepts/">
+      
+      
+        <link rel="next" href="../vector-databases/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Search Plans - kayak</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#search-plans" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="kayak" class="md-header__button md-logo" aria-label="kayak" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            kayak
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Search Plans
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../installation/" class="md-tabs__link">
+          
+  
+  
+  Get Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../concepts/" class="md-tabs__link">
+          
+  
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../api/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Reference
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="kayak" class="md-nav__button md-logo" aria-label="kayak" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    kayak
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Get Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Get Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage-patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../storage-and-search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage + Search
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mojo-backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using the Mojo Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Late Interaction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Search Plans
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Search Plans
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#a-plan-is-a-description-not-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A Plan Is A Description, Not Execution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-backend-changes-inside-a-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What The Backend Changes Inside A Plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What The Backend Changes Inside A Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#exact_full_scan_search_plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        exact_full_scan_search_plan(...)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#document_proxy_search_plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        document_proxy_search_plan(...)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-these-plans-matter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why These Plans Matter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exact-baseline-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exact Baseline Plan
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#approximate-candidate-stage-plus-exact-mojo-rerank" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Approximate Candidate Stage Plus Exact Mojo Rerank
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inspecting-the-result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inspecting The Result
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparing-approximate-and-exact-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparing Approximate And Exact Results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#candidate-generation-knobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Candidate Generation Knobs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stage-3-text-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage 3 Text Verification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-to-tune-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What To Tune First
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vector-databases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vector Databases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#a-plan-is-a-description-not-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A Plan Is A Description, Not Execution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-backend-changes-inside-a-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What The Backend Changes Inside A Plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What The Backend Changes Inside A Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#exact_full_scan_search_plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        exact_full_scan_search_plan(...)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#document_proxy_search_plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        document_proxy_search_plan(...)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-these-plans-matter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why These Plans Matter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exact-baseline-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exact Baseline Plan
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#approximate-candidate-stage-plus-exact-mojo-rerank" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Approximate Candidate Stage Plus Exact Mojo Rerank
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inspecting-the-result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inspecting The Result
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparing-approximate-and-exact-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparing Approximate And Exact Results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#candidate-generation-knobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Candidate Generation Knobs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stage-3-text-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage 3 Text Verification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-to-tune-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What To Tune First
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="search-plans">Search Plans</h1>
+<p>Search plans are Kayak's way of making retrieval pipelines explicit and
+inspectable from Python.</p>
+<p>The important thing for Mojo users is this:</p>
+<ul>
+<li>stage structure is explicit</li>
+<li>candidate generation is explicit</li>
+<li>exact reranking is explicit</li>
+<li>backend choice is explicit</li>
+</ul>
+<p>That makes search plans the right place to reason about both quality and cost.</p>
+<h2 id="a-plan-is-a-description-not-execution">A Plan Is A Description, Not Execution</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">plan</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">document_proxy_search_plan</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">final_k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">candidate_k</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">query_vector_budget</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">document_vector_budget</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span>
+</code></pre></div>
+<p>Nothing runs yet.</p>
+<p>Execution starts when you call:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">search_with_plan</span><span class="p">(</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">query</span><span class="p">,</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">index</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">plan</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">backend</span><span class="o">=</span><span class="n">kayak</span><span class="o">.</span><span class="n">MOJO_EXACT_CPU_BACKEND</span><span class="p">,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">)</span>
+</code></pre></div>
+<p>That <code>backend=</code> argument is where you choose the exact executor for the plan.</p>
+<h2 id="what-the-backend-changes-inside-a-plan">What The Backend Changes Inside A Plan</h2>
+<p>The backend matters only for the stages that perform exact late-interaction
+scoring.</p>
+<h3 id="exact_full_scan_search_plan"><code>exact_full_scan_search_plan(...)</code></h3>
+<p>Stage 1 is already exact, so the plan defaults to:</p>
+<ul>
+<li>exact full-scan candidate generation</li>
+<li><code>noop_topk</code> in stage 2</li>
+</ul>
+<p>When you run this plan with Mojo, the exact full scan is what uses the backend.</p>
+<h3 id="document_proxy_search_plan"><code>document_proxy_search_plan(...)</code></h3>
+<p>Stage 1 is approximate document-proxy candidate generation.
+Stage 2 is exact late-interaction reranking.</p>
+<p>When you run this plan with Mojo:</p>
+<ul>
+<li>stage 1 still does the approximate proxy scoring</li>
+<li>stage 2 exact reranking uses the chosen backend</li>
+</ul>
+<p>That is usually the most important plan to run on Mojo.</p>
+<h2 id="why-these-plans-matter">Why These Plans Matter</h2>
+<p>The talk makes a useful point that fits directly here:</p>
+<p>retrieve-and-rerank is only a good abstraction if the candidate generator
+actually reaches the relevant documents.</p>
+<p>That means the real question is not only:</p>
+<ul>
+<li>"How strong is my reranker?"</li>
+</ul>
+<p>It is also:</p>
+<ul>
+<li>"What recall did my candidate stage achieve before reranking even began?"</li>
+</ul>
+<p>Kayak exposes both because late interaction is most useful when you can inspect
+that boundary directly.</p>
+<h2 id="exact-baseline-plan">Exact Baseline Plan</h2>
+<p>Use this as the correctness baseline:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">exact_plan</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">exact_full_scan_search_plan</span><span class="p">(</span><span class="n">final_k</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">exact_result</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">search_with_plan</span><span class="p">(</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">query</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">index</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">exact_plan</span><span class="p">,</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">backend</span><span class="o">=</span><span class="n">kayak</span><span class="o">.</span><span class="n">MOJO_EXACT_CPU_BACKEND</span><span class="p">,</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="p">)</span>
+</code></pre></div>
+<p>This answers:</p>
+<ul>
+<li>What are the exact winners?</li>
+<li>What is the exact full-scan cost?</li>
+</ul>
+<h2 id="approximate-candidate-stage-plus-exact-mojo-rerank">Approximate Candidate Stage Plus Exact Mojo Rerank</h2>
+<p>Use this when you want a realistic retrieval pipeline:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">approx_plan</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">document_proxy_search_plan</span><span class="p">(</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">final_k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">candidate_k</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">query_vector_budget</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">document_vector_budget</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">)</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="n">approx_result</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">search_with_plan</span><span class="p">(</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="n">query</span><span class="p">,</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="n">index</span><span class="p">,</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    <span class="n">approx_plan</span><span class="p">,</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="n">backend</span><span class="o">=</span><span class="n">kayak</span><span class="o">.</span><span class="n">MOJO_EXACT_CPU_BACKEND</span><span class="p">,</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="p">)</span>
+</code></pre></div>
+<p>This answers:</p>
+<ul>
+<li>Did stage 1 find the right candidate window?</li>
+<li>How much exact stage-2 work did that candidate window create?</li>
+<li>What trade-off did <code>candidate_k</code> buy me?</li>
+</ul>
+<p>This is the plan shape to use when you want to test whether a cheaper stage 1
+is still producing a candidate window that makes exact reranking worthwhile.</p>
+<h2 id="inspecting-the-result">Inspecting The Result</h2>
+<p><code>SearchPlanResult</code> exposes the intermediate state directly.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">result</span><span class="o">.</span><span class="n">hits</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">result</span><span class="o">.</span><span class="n">candidate_stage</span><span class="o">.</span><span class="n">hits</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">result</span><span class="o">.</span><span class="n">stage2_reference</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">result</span><span class="o">.</span><span class="n">stage3_verifier</span>
+</code></pre></div>
+<p>The most important profiling fields are:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">result</span><span class="o">.</span><span class="n">stage2_reference</span><span class="o">.</span><span class="n">stage_name</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">result</span><span class="o">.</span><span class="n">stage2_reference</span><span class="o">.</span><span class="n">input_hit_count</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">result</span><span class="o">.</span><span class="n">stage2_reference</span><span class="o">.</span><span class="n">output_hit_count</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">result</span><span class="o">.</span><span class="n">stage2_reference</span><span class="o">.</span><span class="n">query_vector_count</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">result</span><span class="o">.</span><span class="n">stage2_reference</span><span class="o">.</span><span class="n">document_vector_count</span>
+</code></pre></div>
+<p>Those tell you how much exact work the plan actually executed.</p>
+<h2 id="comparing-approximate-and-exact-results">Comparing Approximate And Exact Results</h2>
+<p>This is the simplest faithfulness check:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">exact_plan</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">exact_full_scan_search_plan</span><span class="p">(</span><span class="n">final_k</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">approx_plan</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">document_proxy_search_plan</span><span class="p">(</span><span class="n">final_k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">candidate_k</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">exact_result</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">search_with_plan</span><span class="p">(</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">query</span><span class="p">,</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">index</span><span class="p">,</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="n">exact_plan</span><span class="p">,</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="n">backend</span><span class="o">=</span><span class="n">kayak</span><span class="o">.</span><span class="n">MOJO_EXACT_CPU_BACKEND</span><span class="p">,</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="p">)</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="n">approx_result</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">search_with_plan</span><span class="p">(</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="n">query</span><span class="p">,</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    <span class="n">index</span><span class="p">,</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>    <span class="n">approx_plan</span><span class="p">,</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>    <span class="n">backend</span><span class="o">=</span><span class="n">kayak</span><span class="o">.</span><span class="n">MOJO_EXACT_CPU_BACKEND</span><span class="p">,</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="p">)</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="n">exact_ids</span> <span class="o">=</span> <span class="p">{</span><span class="n">hit</span><span class="o">.</span><span class="n">doc_id</span> <span class="k">for</span> <span class="n">hit</span> <span class="ow">in</span> <span class="n">exact_result</span><span class="o">.</span><span class="n">hits</span><span class="p">}</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="n">approx_ids</span> <span class="o">=</span> <span class="p">{</span><span class="n">hit</span><span class="o">.</span><span class="n">doc_id</span> <span class="k">for</span> <span class="n">hit</span> <span class="ow">in</span> <span class="n">approx_result</span><span class="o">.</span><span class="n">hits</span><span class="p">}</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="n">recall</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">exact_ids</span> <span class="o">&amp;</span> <span class="n">approx_ids</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">exact_ids</span><span class="p">)</span>
+</code></pre></div>
+<p>Use that before making claims about a candidate generator.</p>
+<p>If recall is poor here, the right fix is usually not "use a stronger stage-2
+reranker." The right fix is usually to widen or improve stage 1.</p>
+<h2 id="candidate-generation-knobs">Candidate Generation Knobs</h2>
+<p><code>document_proxy_search_plan(...)</code> exposes the main stage-1 controls:</p>
+<ul>
+<li><code>candidate_k</code></li>
+<li><code>query_vector_budget</code></li>
+<li><code>document_vector_budget</code></li>
+</ul>
+<p><code>candidate_k</code> is the main recall-vs-cost knob.</p>
+<p>The vector budgets control how many vectors the proxy stage averages before
+producing candidate scores:</p>
+<ul>
+<li><code>0</code> means "use all available vectors"</li>
+<li>smaller values reduce proxy-stage work</li>
+<li>smaller values can also reduce candidate quality</li>
+</ul>
+<p>The important implication is that these budgets do not just tune latency. They
+also change what evidence stage 1 can even see.</p>
+<p>That is why Kayak keeps the budgets explicit in the plan object instead of
+hiding them in backend-specific config.</p>
+<h2 id="stage-3-text-verification">Stage 3 Text Verification</h2>
+<p>You can add a text-family verifier after exact reranking:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">query</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">query_vectors</span><span class="p">,</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">text</span><span class="o">=</span><span class="s2">&quot;founded in 1984 in a church artistic director&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="p">)</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="n">documents</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">documents</span><span class="p">(</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="p">[</span><span class="s2">&quot;doc-context&quot;</span><span class="p">,</span> <span class="s2">&quot;doc-answer&quot;</span><span class="p">],</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    <span class="p">[</span><span class="n">doc_vectors_a</span><span class="p">,</span> <span class="n">doc_vectors_b</span><span class="p">],</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    <span class="n">texts</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>        <span class="s2">&quot;Gugulethu township logo emblem heritage schools history&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>        <span class="s2">&quot;Zama Dance School was founded in 1984 in a church and the longest serving employee is the artistic director.&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>    <span class="p">],</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="p">)</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="n">index</span> <span class="o">=</span> <span class="n">documents</span><span class="o">.</span><span class="n">pack</span><span class="p">()</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="n">plan</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">exact_full_scan_search_plan</span><span class="p">(</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>    <span class="n">final_k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>    <span class="n">candidate_k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>    <span class="n">stage3_verifier</span><span class="o">=</span><span class="n">kayak</span><span class="o">.</span><span class="n">clause_text_stage3_verifier_operator</span><span class="p">(),</span>
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="p">)</span>
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>
+<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a><span class="n">result</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">search_with_plan</span><span class="p">(</span>
+<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>    <span class="n">query</span><span class="p">,</span>
+<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a>    <span class="n">index</span><span class="p">,</span>
+<a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a>    <span class="n">plan</span><span class="p">,</span>
+<a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>    <span class="n">backend</span><span class="o">=</span><span class="n">kayak</span><span class="o">.</span><span class="n">MOJO_EXACT_CPU_BACKEND</span><span class="p">,</span>
+<a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a><span class="p">)</span>
+</code></pre></div>
+<p>This requires:</p>
+<ul>
+<li><code>query.text</code></li>
+<li><code>documents(..., texts=...)</code></li>
+</ul>
+<p>The verifier is explicit because text materialization has real cost too.</p>
+<h2 id="what-to-tune-first">What To Tune First</h2>
+<p>If you are starting from scratch:</p>
+<ol>
+<li>Run an exact full-scan baseline.</li>
+<li>Run a document-proxy plan with a generous <code>candidate_k</code>.</li>
+<li>Measure overlap with the exact winners.</li>
+<li>Reduce or increase <code>candidate_k</code> based on recall and exact stage-2 cost.</li>
+<li>Keep the backend fixed while you tune the plan.</li>
+</ol>
+<p>That sequence gives you a defensible tuning workflow instead of anecdotal
+"seems good enough" iteration.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.top", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

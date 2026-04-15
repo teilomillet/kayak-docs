@@ -1,0 +1,1457 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Late-interaction retrieval for Python with an explicit Mojo exact CPU backend">
+      
+      
+      
+        <link rel="canonical" href="https://docs.withkayak.com/mojo-backend/">
+      
+      
+        <link rel="prev" href="../storage-and-search/">
+      
+      
+        <link rel="next" href="../concepts/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Using the Mojo Backend - kayak</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#using-the-mojo-backend" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="kayak" class="md-header__button md-logo" aria-label="kayak" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            kayak
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Using the Mojo Backend
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../installation/" class="md-tabs__link">
+          
+  
+  
+  Get Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../concepts/" class="md-tabs__link">
+          
+  
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../api/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Reference
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="kayak" class="md-nav__button md-logo" aria-label="kayak" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    kayak
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Get Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Get Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage-patterns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../storage-and-search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage + Search
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using the Mojo Backend
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using the Mojo Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-mojo-backend-actually-gives-you" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What The Mojo Backend Actually Gives You
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-pixi-to-make-mojo-available" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Pixi To Make Mojo Available
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-make-your-own-code-default-to-mojo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How To Make Your Own Code Default To Mojo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-128-dim-embeddings-for-the-mojo-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use 128-Dim Embeddings For The Mojo Path
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fastest-normal-usage-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fastest Normal Usage Pattern
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-explicit-flat-layouts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When To Use Explicit Flat Layouts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-batch-apis-for-repeated-query-traffic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Batch APIs For Repeated Query Traffic
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-mojo-inside-search-plans" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Mojo Inside Search Plans
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Use Mojo Inside Search Plans">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#exact-full-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exact full scan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#approximate-candidate-generation-plus-exact-mojo-rerank" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Approximate candidate generation plus exact Mojo rerank
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-to-do-with-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What To Do With It
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#available_backends-only-shows-numpy_reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        available_backends() only shows numpy_reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mojo-reports-a-bundled-backendcompiler-mismatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mojo reports a bundled backend/compiler mismatch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-first-mojo-call-is-slow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The first Mojo call is slow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#you-want-mojo-to-be-implicit-everywhere" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        You want Mojo to be implicit everywhere
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Late Interaction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../search-plans/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Search Plans
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vector-databases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vector Databases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-mojo-backend-actually-gives-you" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What The Mojo Backend Actually Gives You
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-pixi-to-make-mojo-available" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Pixi To Make Mojo Available
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-make-your-own-code-default-to-mojo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How To Make Your Own Code Default To Mojo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-128-dim-embeddings-for-the-mojo-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use 128-Dim Embeddings For The Mojo Path
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fastest-normal-usage-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fastest Normal Usage Pattern
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-explicit-flat-layouts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When To Use Explicit Flat Layouts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-batch-apis-for-repeated-query-traffic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Batch APIs For Repeated Query Traffic
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-mojo-inside-search-plans" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Mojo Inside Search Plans
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Use Mojo Inside Search Plans">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#exact-full-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exact full scan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#approximate-candidate-generation-plus-exact-mojo-rerank" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Approximate candidate generation plus exact Mojo rerank
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-to-do-with-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What To Do With It
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#available_backends-only-shows-numpy_reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        available_backends() only shows numpy_reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mojo-reports-a-bundled-backendcompiler-mismatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mojo reports a bundled backend/compiler mismatch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-first-mojo-call-is-slow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The first Mojo call is slow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#you-want-mojo-to-be-implicit-everywhere" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        You want Mojo to be implicit everywhere
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="using-the-mojo-backend">Using The Mojo Backend</h1>
+<p>This page is about one specific goal:</p>
+<p>"I want my Python Kayak setup to use the Mojo exact CPU backend as my normal
+path, not accidentally fall back to NumPy because I only installed the package."</p>
+<h2 id="what-the-mojo-backend-actually-gives-you">What The Mojo Backend Actually Gives You</h2>
+<p><code>kayak.MOJO_EXACT_CPU_BACKEND</code> is the exact CPU execution path for:</p>
+<ul>
+<li><code>kayak.maxsim(...)</code></li>
+<li><code>kayak.maxsim_batch(...)</code></li>
+<li><code>kayak.search(...)</code></li>
+<li><code>kayak.search_batch(...)</code></li>
+<li><code>kayak.search_with_plan(...)</code></li>
+</ul>
+<p>Use it for:</p>
+<ul>
+<li>exact local scoring</li>
+<li>exact local top-k search</li>
+<li>exact reranking in stage-aware search plans</li>
+<li>repeated and batched queries against the same index</li>
+</ul>
+<p>It does not change the retrieval semantics. It changes the executor.</p>
+<p>That means:</p>
+<ul>
+<li>the scores should match the NumPy reference path on supported inputs</li>
+<li>the stage structure stays the same</li>
+<li>the backend choice is still explicit at the call site</li>
+</ul>
+<h2 id="use-pixi-to-make-mojo-available">Use Pixi To Make Mojo Available</h2>
+<p>The most reliable install story is:</p>
+<ol>
+<li>Put Python 3.11, Mojo, and Kayak in the same Pixi environment.</li>
+<li>Verify <code>kayak.available_backends()</code> includes <code>mojo_exact_cpu</code>.</li>
+<li>Define a backend constant in your application code.</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pixi<span class="w"> </span>add<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11<span class="w"> </span><span class="s2">&quot;mojo&gt;=0.26.3.0.dev2026041020,&lt;0.27&quot;</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pixi<span class="w"> </span>add<span class="w"> </span>--pypi<span class="w"> </span>kayak
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">kayak</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nb">print</span><span class="p">(</span><span class="n">kayak</span><span class="o">.</span><span class="n">available_backends</span><span class="p">())</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># (&#39;numpy_reference&#39;, &#39;mojo_exact_cpu&#39;)</span>
+</code></pre></div>
+<p>If that tuple does not include <code>mojo_exact_cpu</code>, stop and inspect
+<code>kayak.backend_info(kayak.MOJO_EXACT_CPU_BACKEND)</code> before assuming anything.</p>
+<h2 id="how-to-make-your-own-code-default-to-mojo">How To Make Your Own Code Default To Mojo</h2>
+<p>Kayak does not auto-select Mojo. If you want "default to Mojo" behavior in your
+own codebase, define that default yourself:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">kayak</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">BACKEND</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">MOJO_EXACT_CPU_BACKEND</span>
+</code></pre></div>
+<p>Then thread it through the operations you care about:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">scores</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">maxsim</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">BACKEND</span><span class="p">)</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">hits</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">BACKEND</span><span class="p">)</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">hits_by_query</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">search_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">BACKEND</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">result</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">search_with_plan</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">plan</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">BACKEND</span><span class="p">)</span>
+</code></pre></div>
+<p>That is better than relying on hidden environment behavior because:</p>
+<ul>
+<li>it is explicit in code review</li>
+<li>tests can override it easily</li>
+<li>benchmarks stay honest about which executor ran</li>
+</ul>
+<h2 id="use-128-dim-embeddings-for-the-mojo-path">Use 128-Dim Embeddings For The Mojo Path</h2>
+<p>The validated Mojo workflow is ColBERT-style 128-dimensional embeddings.</p>
+<p>That is the right shape for:</p>
+<ul>
+<li><code>query.to_layout("flat_dim128")</code></li>
+<li><code>index.to_layout("hybrid_flat_dim128")</code></li>
+<li>the prepared packed-index fast path</li>
+</ul>
+<p>If you are sketching with tiny 2D toy vectors, keep those examples on the
+NumPy backend. Switch to 128-dimensional vectors before you judge the Mojo
+path.</p>
+<h2 id="fastest-normal-usage-pattern">Fastest Normal Usage Pattern</h2>
+<p>For repeated exact search against one index, use this pattern:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">kayak</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">dim128</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="n">vector</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    <span class="k">return</span> <span class="n">vector</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="n">BACKEND</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">MOJO_EXACT_CPU_BACKEND</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="n">query</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">dim128</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">dim128</span><span class="p">(</span><span class="mi">1</span><span class="p">)]))</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="n">index</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">documents</span><span class="p">(</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    <span class="p">[</span><span class="s2">&quot;doc-a&quot;</span><span class="p">,</span> <span class="s2">&quot;doc-b&quot;</span><span class="p">],</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>    <span class="p">[</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>        <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">dim128</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">dim128</span><span class="p">(</span><span class="mi">1</span><span class="p">)]),</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>        <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">dim128</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">dim128</span><span class="p">(</span><span class="mi">0</span><span class="p">)]),</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>    <span class="p">],</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="p">)</span><span class="o">.</span><span class="n">pack</span><span class="p">()</span>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="n">hits</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">BACKEND</span><span class="p">)</span>
+</code></pre></div>
+<p>Reasons this is the right baseline:</p>
+<ul>
+<li><code>documents.pack()</code> gives you a reusable <code>LateIndex</code></li>
+<li>reusing the same <code>LateIndex</code> instance lets Kayak reuse prepared index state</li>
+<li><code>search(...)</code> gives direct exact top-k output instead of forcing a full score vector first</li>
+</ul>
+<h2 id="when-to-use-explicit-flat-layouts">When To Use Explicit Flat Layouts</h2>
+<p>If you want the 128-dimensional layout transformation to be visible in the code,
+convert it explicitly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">flat_query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">to_layout</span><span class="p">(</span><span class="s2">&quot;flat_dim128&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">hybrid_index</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">to_layout</span><span class="p">(</span><span class="s2">&quot;hybrid_flat_dim128&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">scores</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">maxsim</span><span class="p">(</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">flat_query</span><span class="p">,</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">hybrid_index</span><span class="p">,</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="n">backend</span><span class="o">=</span><span class="n">BACKEND</span><span class="p">,</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">)</span>
+</code></pre></div>
+<p>Choose this form when:</p>
+<ul>
+<li>you want profiling boundaries to line up with the flat layout</li>
+<li>you want layout choice to be part of the benchmark setup</li>
+<li>you are reasoning about storage and conversion cost explicitly</li>
+</ul>
+<h2 id="use-batch-apis-for-repeated-query-traffic">Use Batch APIs For Repeated Query Traffic</h2>
+<p>If the index is fixed and queries are the thing changing, use the batch API.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">batch</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">query_batch</span><span class="p">(</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="p">[</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>        <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">dim128</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">dim128</span><span class="p">(</span><span class="mi">1</span><span class="p">)]),</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">dim128</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">dim128</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">dim128</span><span class="p">(</span><span class="mi">2</span><span class="p">)]),</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="p">]</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="p">)</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="n">scores_by_query</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">maxsim_batch</span><span class="p">(</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="n">batch</span><span class="p">,</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="n">index</span><span class="p">,</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="n">backend</span><span class="o">=</span><span class="n">BACKEND</span><span class="p">,</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="p">)</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="n">hits_by_query</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">search_batch</span><span class="p">(</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>    <span class="n">batch</span><span class="p">,</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>    <span class="n">index</span><span class="p">,</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>    <span class="n">k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>    <span class="n">backend</span><span class="o">=</span><span class="n">BACKEND</span><span class="p">,</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="p">)</span>
+</code></pre></div>
+<p>This is a better fit than looping one query at a time in Python when you are
+running repeated local evaluation or benchmark workloads.</p>
+<h2 id="use-mojo-inside-search-plans">Use Mojo Inside Search Plans</h2>
+<p>Search plans are explicit stage pipelines. The backend only affects the stages
+that perform exact late-interaction scoring.</p>
+<h3 id="exact-full-scan">Exact full scan</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">plan</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">exact_full_scan_search_plan</span><span class="p">(</span><span class="n">final_k</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">result</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">search_with_plan</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">plan</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">BACKEND</span><span class="p">)</span>
+</code></pre></div>
+<p>Here stage 1 is already exact, so stage 2 defaults to <code>noop_topk</code>.</p>
+<h3 id="approximate-candidate-generation-plus-exact-mojo-rerank">Approximate candidate generation plus exact Mojo rerank</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">plan</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">document_proxy_search_plan</span><span class="p">(</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">final_k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">candidate_k</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">query_vector_budget</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="n">document_vector_budget</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="p">)</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="n">result</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">search_with_plan</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">plan</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">BACKEND</span><span class="p">)</span>
+</code></pre></div>
+<p>In this plan:</p>
+<ul>
+<li>stage 1 uses the document-proxy candidate generator</li>
+<li>stage 2 uses exact late interaction on the candidate window</li>
+<li>the exact rerank stage is where the backend matters most</li>
+</ul>
+<p>That is the standard pattern when you want a fast approximate candidate stage
+followed by exact scoring on a smaller set.</p>
+<h2 id="what-to-do-with-it">What To Do With It</h2>
+<p>Use the Mojo backend when you need to answer one of these questions with exact
+local execution:</p>
+<ul>
+<li>"What are the exact top-k results for this query and index?"</li>
+<li>"Did my approximate candidate generator recover the exact winners?"</li>
+<li>"How much exact stage-2 work did this candidate window create?"</li>
+<li>"What is steady-state exact search throughput on a fixed local index?"</li>
+</ul>
+<p>The point is not just "make search faster." The point is "keep the exact path
+programmable and measurable from Python."</p>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="available_backends-only-shows-numpy_reference"><code>available_backends()</code> only shows <code>numpy_reference</code></h3>
+<p>Check:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">info</span> <span class="o">=</span> <span class="n">kayak</span><span class="o">.</span><span class="n">backend_info</span><span class="p">(</span><span class="n">kayak</span><span class="o">.</span><span class="n">MOJO_EXACT_CPU_BACKEND</span><span class="p">)</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nb">print</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">available</span><span class="p">)</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="nb">print</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">availability_reason</span><span class="p">)</span>
+</code></pre></div>
+<p>Most often this means one of:</p>
+<ul>
+<li>Mojo is not installed in the active environment</li>
+<li><code>mojo</code> is not on <code>PATH</code></li>
+<li>the wrong <code>mojo</code> binary is being picked up</li>
+</ul>
+<p>If you need to pin the binary, set <code>KAYAK_MOJO_CLI</code>.</p>
+<p><code>KAYAK_MOJO_CLI</code> can be either a binary path or a full command prefix such as:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">KAYAK_MOJO_CLI</span><span class="o">=</span><span class="s2">&quot;bash /full/path/to/run_mojo_with_wrapper.sh&quot;</span>
+</code></pre></div>
+<h3 id="mojo-reports-a-bundled-backendcompiler-mismatch">Mojo reports a bundled backend/compiler mismatch</h3>
+<p>That means the installed <code>kayak</code> wheel was built with a different Mojo release
+than the one you are invoking locally. Install matching <code>kayak</code> and <code>mojo</code>
+versions, then rerun the same code.</p>
+<h3 id="the-first-mojo-call-is-slow">The first Mojo call is slow</h3>
+<p>That is expected. The first call may build backend artifacts and prepare index
+state. Measure steady-state after warmup, not only the first invocation.</p>
+<h3 id="you-want-mojo-to-be-implicit-everywhere">You want Mojo to be implicit everywhere</h3>
+<p>The SDK does not do that. Make it explicit in your own code with a shared
+<code>BACKEND = kayak.MOJO_EXACT_CPU_BACKEND</code> constant or a small wrapper layer.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.top", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
