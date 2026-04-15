@@ -5,6 +5,16 @@ This is the shortest verified path to the Mojo backend from Python.
 It uses ColBERT-style 128-dimensional vectors because that is the shape the
 Mojo path is designed for.
 
+## If This Is Not Your Starting Point
+
+| If you are really trying to... | Go to... |
+| --- | --- |
+| install Kayak and make Mojo show up correctly | [Installation](installation.md) |
+| start from raw text instead of precomputed vectors | [Text Encoders](text-encoders.md) and [Usage Patterns](usage-patterns.md) |
+| keep an existing vector database | [Storage + Search](storage-and-search.md) |
+| run many queries against one fixed loaded slice | [Usage Patterns](usage-patterns.md) and [batch-search-on-one-loaded-lancedb-slice.ipynb](notebooks/batch-search-on-one-loaded-lancedb-slice.ipynb) |
+| choose by your situation instead of by API name | [Start Here](start-here.md) |
+
 ## One File, Mojo First
 
 ```python

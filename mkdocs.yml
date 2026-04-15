@@ -39,6 +39,7 @@ theme:
 nav:
   - Home: index.md
   - Get Started:
+    - Start Here: start-here.md
     - Installation: installation.md
     - Quickstart: quickstart.md
     - Text Encoders: text-encoders.md

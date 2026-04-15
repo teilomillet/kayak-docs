@@ -5,6 +5,38 @@ This page is the shortest map to real, runnable Kayak examples.
 Use these when you do not want another conceptual page and just want to see the
 actual shape of the API in practice.
 
+## Choose An Example By Goal
+
+=== "I Need One End-To-End Demo"
+
+    Open:
+
+    - [real-usage-with-mojo.ipynb](notebooks/real-usage-with-mojo.ipynb)
+
+=== "I Need To Show Repeated-Query Speed"
+
+    Open:
+
+    - [batch-search-on-one-loaded-lancedb-slice.ipynb](notebooks/batch-search-on-one-loaded-lancedb-slice.ipynb)
+
+=== "I Need To Show We Can Keep The Existing Database"
+
+    Open:
+
+    - [lancedb-to-kayak-reranking.ipynb](notebooks/lancedb-to-kayak-reranking.ipynb)
+    - [pgvector-to-kayak-exact-search.ipynb](notebooks/pgvector-to-kayak-exact-search.ipynb)
+    - [qdrant-to-kayak-reranking.ipynb](notebooks/qdrant-to-kayak-reranking.ipynb)
+    - [weaviate-to-kayak-reranking.ipynb](notebooks/weaviate-to-kayak-reranking.ipynb)
+    - [chromadb-to-kayak-reranking.ipynb](notebooks/chromadb-to-kayak-reranking.ipynb)
+
+=== "I Need The Smallest Script, Not A Notebook"
+
+    Open:
+
+    - `python/examples/query_batch.py`
+    - `python/examples/text_retriever_workflow.py`
+    - `python/examples/pgvector_store.py`
+
 ## Start Here
 
 If you want one broad public SDK walkthrough:
@@ -92,6 +124,7 @@ These are smaller script examples in the repository.
 
 Use:
 
+- [Start Here](start-here.md) when you are still choosing based on your situation, not the API names
 - [Quickstart](quickstart.md) when you want the shortest Mojo-first script
 - [Usage Patterns](usage-patterns.md) when you want help choosing an API
 - [Storage + Search](storage-and-search.md) when your database already exists

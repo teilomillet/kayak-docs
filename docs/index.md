@@ -15,6 +15,14 @@ pipeline is doing, measure it, and change it deliberately.
 
 <div class="grid cards" markdown>
 
+- __Choose your path first__
+
+  Use this if you are still thinking in terms like "I have text", "I have a
+  vector DB", or "I need repeated-query speed" and do not want to translate
+  that into Kayak terms yet.
+
+  [Open start-here guide](start-here.md)
+
 - __Install and get one working Mojo setup__
 
   Start here if your goal is simply "make `import kayak` use the Mojo backend
@@ -58,12 +66,47 @@ pipeline is doing, measure it, and change it deliberately.
 
 </div>
 
+## Start From Your Situation
+
+=== "I Want One Working Search"
+
+    Start with:
+
+    - [Start Here](start-here.md)
+    - [Installation](installation.md)
+    - [Quickstart](quickstart.md)
+
+=== "I Start From Text"
+
+    Start with:
+
+    - [Start Here](start-here.md)
+    - [Text Encoders](text-encoders.md)
+    - [Usage Patterns](usage-patterns.md)
+
+=== "I Already Have A Vector Database"
+
+    Start with:
+
+    - [Start Here](start-here.md)
+    - [Storage + Search](storage-and-search.md)
+    - [Vector Databases](vector-databases.md)
+
+=== "I Need Throughput Or Concurrency"
+
+    Start with:
+
+    - [Usage Patterns](usage-patterns.md)
+    - [Using the Mojo Backend](mojo-backend.md)
+    - [Hosted Engine Python](hosted-engine-python.md) if your target is the hosted snapshot runtime
+
 ## The Main User Paths
 
 Most users fall into one of these shapes:
 
 | If you want to... | Start here |
 | --- | --- |
+| choose by your current situation instead of by API name | [Start Here](start-here.md) |
 | get one Mojo-capable install working | [Installation](installation.md) |
 | run one local exact search quickly | [Quickstart](quickstart.md) |
 | choose between retriever, batch search, and plans | [Usage Patterns](usage-patterns.md) |
@@ -223,6 +266,7 @@ That makes it practical to answer questions like:
 
 ## Read Next
 
+- [Start Here](start-here.md) for the user-situation switchboard
 - [Installation](installation.md) for the Mojo-capable install paths
 - [Quickstart](quickstart.md) for a working Mojo-first script
 - [Text Encoders](text-encoders.md) for ColBERT-from-HF and bring-your-own-model usage
