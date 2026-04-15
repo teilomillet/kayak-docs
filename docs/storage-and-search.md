@@ -2,8 +2,6 @@
 
 If you already use a vector database, the default Kayak pattern is: leave persistence where it is, materialize one exact searchable slice into Kayak, and run search on that slice directly.
 
-![Database handoff pattern: keep persistence in the vector database, materialize an exact slice into Kayak, search that slice.](assets/storage-handoff.svg)
-
 ## Recommended Operating Model
 
 | Situation | Default choice | Why |
@@ -23,8 +21,6 @@ These are local measured examples from the executed notebooks — useful deploym
 | BrowseComp-Plus evidence slice from LanceDB | same NDCG@10, Kayak exact search `12.52156994765039x` faster after a one-time `0.21453558304347098` second load | the same storage-first, search-in-Kayak pattern held on a second slice |
 | repeated-query LanceDB slice example | explicit loaded-slice `search_batch(...)` was `154.42x` faster than looping `retriever.search_text(...)` | once the slice is loaded, batch search is the right public fast path |
 | repeated-query example through the high-level retriever | `retriever.search_text_batch(...)` was `1.029x` vs a per-query loop | retriever batching is mainly ergonomic; the main gain comes from reusing the explicit slice |
-
-![Bar chart summarizing local measured speedup snapshots for LanceDB exact search and loaded-slice batch search.](assets/benchmark-snapshot.svg)
 
 ## Default Recommendation
 
