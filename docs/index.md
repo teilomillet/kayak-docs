@@ -40,6 +40,26 @@ It keeps the parts that matter explicit:
 That is the point of the SDK. You should be able to see what the retrieval
 pipeline is doing, measure it, and change it deliberately.
 
+If you are already inside Python and want the package to explain itself, call:
+
+```python
+import kayak
+
+print(kayak.help())
+print(kayak.help("search_text"))
+```
+
+The same interface descriptions are also available through normal Python
+introspection:
+
+```python
+import inspect
+import kayak
+
+print(inspect.signature(kayak.open_text_retriever))
+print(inspect.getdoc(kayak.open_text_retriever))
+```
+
 <figure class="kayak-figure">
   <img src="assets/overview-flow.svg" alt="Overview of the public Kayak flow from text or vectors into exact search, with optional vector database storage and loaded-slice reuse.">
   <figcaption>Public mental model: start from text or vectors, optionally keep the database for storage, then let Kayak own the exact search step.</figcaption>

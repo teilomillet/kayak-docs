@@ -115,6 +115,7 @@ print(kayak.available_backends())
 info = kayak.backend_info(kayak.MOJO_EXACT_CPU_BACKEND)
 print(info.available)
 print(info.availability_reason)
+print(kayak.mojo_bridge_info())
 PY
 ```
 
@@ -140,6 +141,7 @@ uv run python - <<'PY'
 import kayak
 print(kayak.available_backends())
 print(kayak.backend_info(kayak.MOJO_EXACT_CPU_BACKEND).availability_reason)
+print(kayak.mojo_bridge_info())
 PY
 ```
 
@@ -263,6 +265,37 @@ export KAYAK_MOJO_CLI="bash /full/path/to/run_mojo_with_wrapper.sh"
 ```
 
 That removes ambiguity and is the right choice for CI or shared dev machines.
+
+## Public Bridge Diagnostics
+
+If you want one public SDK call that summarizes the Python-to-Mojo connection,
+use:
+
+```python
+import kayak
+
+print(kayak.mojo_bridge_info())
+```
+
+That reports:
+
+- whether the Mojo backend is available
+- which command Kayak would invoke
+- whether the package is using bundled wheel artifacts or repo sources
+- the active Mojo CLI version when one is visible
+- bundled wheel metadata when the package ships a bundled backend
+
+If you want to go further and actually test whether the extension can build or
+load, use:
+
+```python
+import kayak
+
+print(kayak.mojo_bridge_info(probe_load=True))
+```
+
+`probe_load=True` is intentionally a stronger check. It can trigger the actual
+bridge build/load path for the Mojo exact backend.
 
 ## The Backend Still Stays Explicit In Code
 

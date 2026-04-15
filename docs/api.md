@@ -70,6 +70,10 @@ Hosted-engine Python note:
 | keep an existing vector database for storage | `kayak.open_store(...)` + `store.load_index(...)` | [Storage + Search](storage-and-search.md) |
 | run a stage-1 candidate step plus exact rerank | `kayak.document_proxy_search_plan(...)` + `kayak.search_with_plan(...)` | [Search Plans](search-plans.md) |
 | check whether Mojo is actually available | `kayak.available_backends()` + `kayak.backend_info(...)` | [Using the Mojo Backend](mojo-backend.md) |
+| inspect the Python-to-Mojo bridge directly | `kayak.mojo_bridge_info()` | [Installation](installation.md) |
+| get generated terminal help from the public API itself | `kayak.help(...)` | [Installation](installation.md) |
+| look up one retriever method from the REPL | `kayak.help("search_text")` | [Usage Patterns](usage-patterns.md) |
+| use normal Python hover/help in an editor or notebook | `inspect.getdoc(...)` and `inspect.signature(...)` | [Installation](installation.md) |
 
 ## Constructors
 
@@ -497,6 +501,53 @@ Return a `BackendInfo` record with:
 - `availability_reason`
 
 Use this instead of guessing why the Mojo backend is or is not available.
+
+### `kayak.mojo_bridge_info(*, probe_load=False)`
+
+Return structured diagnostics for the Python-to-Mojo bridge behind
+`mojo_exact_cpu`.
+
+Use this when you want one public SDK call that answers:
+
+- which Mojo command Kayak would invoke
+- whether the bridge is using repo sources or bundled wheel artifacts
+- what Mojo version the active CLI reports
+- what Mojo version built the bundled wheel artifact, when that metadata exists
+
+```python
+info = kayak.mojo_bridge_info()
+```
+
+If you want the stronger check that actually tries to build or load the bridge,
+use:
+
+```python
+info = kayak.mojo_bridge_info(probe_load=True)
+```
+
+That sets:
+
+- `module_loaded`
+- `load_error`
+
+so the caller can distinguish "Mojo is discoverable" from "the exact bridge
+really loaded successfully."
+
+### `kayak.help(topic=None)`
+
+Return generated public help from the exported API, signatures, and docstrings.
+
+Use this when you want terminal-friendly help that stays aligned with the
+current public package surface instead of a second handwritten registry.
+
+Examples:
+
+```python
+print(kayak.help())
+print(kayak.help("search"))
+print(kayak.help("stores"))
+print(kayak.help(kayak.LateTextRetriever))
+```
 
 ## Types
 
