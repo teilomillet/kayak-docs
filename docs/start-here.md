@@ -1,5 +1,22 @@
 # Start Here
 
+<div class="kayak-hero kayak-hero--compact" markdown>
+
+<p class="kayak-eyebrow">Choose by situation, not by API name</p>
+
+# Start Here
+
+<p class="kayak-lead">
+This page is for the point where a user knows what they have, but not yet what
+Kayak calls it.
+</p>
+
+[Quickstart](quickstart.md){ .md-button .md-button--primary }
+[Examples](examples.md){ .md-button }
+[API Reference](api.md){ .md-button }
+
+</div>
+
 This page is for the moment before a user knows the Kayak vocabulary.
 
 Most people do not begin by asking for a `LateIndex` or a search plan. They
@@ -11,6 +28,36 @@ begin with one of these situations:
 - "I already have a vector database."
 - "I need repeated-query speed."
 - "I need one same-snapshot runtime for many callers."
+
+## Fast Mental Model
+
+<div class="grid cards" markdown>
+
+- __I have text__
+
+  Use one retriever object and let Kayak own encoding plus search.
+
+  [Open text path](text-encoders.md)
+
+- __I have vectors__
+
+  Build one query, one packed index, and search directly.
+
+  [Open vector path](quickstart.md)
+
+- __I have a vector DB__
+
+  Keep the database for storage and let Kayak own retrieval.
+
+  [Open storage path](storage-and-search.md)
+
+- __I have repeated query traffic__
+
+  Load one slice once and reuse it with batch search.
+
+  [Open repeated-query path](usage-patterns.md)
+
+</div>
 
 ## Choose Your Situation
 

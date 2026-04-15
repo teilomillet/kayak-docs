@@ -1,5 +1,32 @@
 # Kayak Python SDK
 
+<div class="kayak-hero" markdown>
+
+<p class="kayak-eyebrow">Late-interaction retrieval for Python</p>
+
+# Kayak Python SDK
+
+<p class="kayak-lead">
+Use the Mojo backend when you want exact local late-interaction search, keep
+your current vector database when you need it, and keep the retrieval pipeline
+explicit enough to measure.
+</p>
+
+[Start Here](start-here.md){ .md-button .md-button--primary }
+[Installation](installation.md){ .md-button }
+[Examples](examples.md){ .md-button }
+
+<div class="kayak-pill-row" markdown>
+
+- `Mojo exact CPU backend`
+- `ColBERT-style 128-d embeddings`
+- `Batch search on one loaded slice`
+- `Keep LanceDB / PgVector / Qdrant / Weaviate / Chroma`
+
+</div>
+
+</div>
+
 Kayak is a local Python SDK for late-interaction retrieval.
 
 It keeps the parts that matter explicit:
@@ -99,6 +126,30 @@ pipeline is doing, measure it, and change it deliberately.
     - [Usage Patterns](usage-patterns.md)
     - [Using the Mojo Backend](mojo-backend.md)
     - [Hosted Engine Python](hosted-engine-python.md) if your target is the hosted snapshot runtime
+
+## The Shortest Useful Journey
+
+<div class="grid cards" markdown>
+
+- __Install Mojo correctly__
+
+  Make sure Kayak can actually discover a usable `mojo` CLI.
+
+  [Open installation](installation.md)
+
+- __Run one exact search__
+
+  Use the shortest working ColBERT-style 128-d example.
+
+  [Open quickstart](quickstart.md)
+
+- __Choose the right API shape__
+
+  Move from one working search to the right long-term workflow.
+
+  [Open usage patterns](usage-patterns.md)
+
+</div>
 
 ## The Main User Paths
 

@@ -2,9 +2,66 @@
   max-width: 76rem;
 }
 
+.kayak-hero {
+  margin: 0.4rem 0 1.6rem;
+  padding: 1.4rem 1.35rem 1.15rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 1.1rem;
+  background:
+    radial-gradient(circle at top right, rgba(92, 191, 170, 0.12), transparent 28%),
+    linear-gradient(180deg, rgba(92, 191, 170, 0.06), transparent 70%);
+}
+
+.kayak-hero--compact {
+  margin-top: 0.2rem;
+}
+
+.kayak-eyebrow {
+  margin: 0 0 0.35rem;
+  color: var(--md-primary-fg-color);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.kayak-lead {
+  max-width: 52rem;
+  margin: 0.2rem 0 1rem;
+  font-size: 1.02rem;
+  line-height: 1.6;
+  color: var(--md-default-fg-color--light);
+}
+
+.kayak-pill-row > ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kayak-pill-row > ul > li {
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.48);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
 .md-typeset h1 {
   margin-bottom: 0.6rem;
   letter-spacing: -0.02em;
+}
+
+.md-typeset .kayak-hero h1 {
+  margin: 0;
+}
+
+.md-typeset .md-button {
+  border-radius: 999px;
 }
 
 .md-typeset h2 {
