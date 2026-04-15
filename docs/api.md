@@ -1,176 +1,214 @@
 # API Reference
 
-All public exports from `import kayak`.
-
----
-
-## Creating objects
-
-### `kayak.query(vectors, *, text=None)`
-
-Create a query from a 2D NumPy array `(query_tokens, dim)`.
+All public exports come from:
 
 ```python
-query = kayak.query(np.array([[1.0, 0.0], [0.0, 1.0]], dtype=np.float32))
-
-# with optional text for stage-3 operators
-query = kayak.query(vectors, text="founded in 1984 in a church")
+import kayak
 ```
 
-### `kayak.documents(doc_ids, vectors_list, *, texts=None)`
+This page focuses on the stable Python surface and the backend contract.
 
-Create a document collection.
+## Constructors
+
+### `kayak.open_encoder(kind, **kwargs)`
+
+Open a public text encoder from the stable factory.
 
 ```python
-docs = kayak.documents(
-    ["doc-a", "doc-b"],
-    [vectors_a, vectors_b],
-)
-
-# with texts for clause_text stage-3
-docs = kayak.documents(
-    ["doc-a", "doc-b"],
-    [vectors_a, vectors_b],
-    texts=["text of doc a", "text of doc b"],
+encoder = kayak.open_encoder(
+    "callable",
+    query_encoder=my_query_encoder,
+    document_encoder=my_document_encoder,
 )
 ```
 
-### `kayak.query_batch(vectors_list)`
+Built-in kinds:
 
-Create a batch of queries. Each query can have a different number of token vectors.
+- `"callable"`
+- `"colbert"`
 
-```python
-batch = kayak.query_batch([vectors_q1, vectors_q2, vectors_q3])
-```
+### `kayak.open_store(kind, **kwargs)`
 
----
-
-## Indexing
-
-### `docs.pack()`
-
-Pack documents into a searchable index.
+Open a public persistence adapter from the stable factory.
 
 ```python
-index = docs.pack()
+store = kayak.open_store("kayak", path="./kayak-index")
 ```
 
-### `index.to_layout(layout)`
+Built-in kinds:
 
-Convert to an optimized layout. Requires `vector_dim == 128`.
+- `"memory"`
+- `"kayak"` and `"directory"`
+- `"lancedb"`
 
-| Layout | Description |
-|--------|-------------|
-| `"flat_dim128"` | Flat query layout for 128-dim embeddings |
-| `"hybrid_flat_dim128"` | Flat document index layout for 128-dim embeddings |
+### `kayak.query(token_vectors, *, text=None)`
+
+Build a `LateQuery` from a 2D token-vector matrix.
+
+Accepted inputs are objects that can be converted to a 2D array-like matrix,
+including NumPy arrays and torch tensors.
 
 ```python
-flat_query   = query.to_layout("flat_dim128")
-hybrid_index = index.to_layout("hybrid_flat_dim128")
+query = kayak.query(vectors)
+query_with_text = kayak.query(vectors, text="founded in 1984 in a church")
 ```
 
-### `kayak.packed_index(doc_ids, vectors_list)`
+### `kayak.query_batch(token_vectors)`
 
-Shorthand for `kayak.documents(...).pack()`.
+Build a `LateQueryBatch` from a sequence of query matrices.
 
-### `kayak.hybrid_flat_dim128_index(doc_ids, vectors_list)`
-
-Shorthand for `kayak.documents(...).pack().to_layout("hybrid_flat_dim128")`.
-
-### `kayak.flat_query_dim128(vectors)`
-
-Shorthand for `kayak.query(vectors).to_layout("flat_dim128")`.
-
----
-
-## Scoring
-
-### `kayak.maxsim(query, index, *, backend=NUMPY_REFERENCE_BACKEND)`
-
-Exact MaxSim scores for all documents in the index.
+Each query can have a different number of vectors. All queries must share the
+same vector dimension.
 
 ```python
-scores = kayak.maxsim(query, index)
-
-scores.doc_ids   # ('doc-a', 'doc-b', ...)
-scores.values    # np.array([2.0, 1.75, ...], dtype=float32)
+batch = kayak.query_batch([query_a_vectors, query_b_vectors])
 ```
 
-### `kayak.maxsim_batch(batch, index, *, backend=NUMPY_REFERENCE_BACKEND)`
+### `kayak.documents(doc_ids, token_vectors, *, texts=None)`
 
-MaxSim for a batch of queries. Returns one `LateScores` per query.
+Build `LateDocuments` from:
 
----
-
-## Search
-
-### `kayak.search(query, index, k, *, backend=NUMPY_REFERENCE_BACKEND)`
-
-Top-k search. Returns a tuple of `SearchHit`.
+- document ids
+- one token-vector matrix per document
+- optional document texts
 
 ```python
-hits = kayak.search(query, index, k=10)
-# (SearchHit(doc_id='doc-a', score=2.0), ...)
+documents = kayak.documents(
+    ["doc-a", "doc-b"],
+    [doc_a_vectors, doc_b_vectors],
+    texts=["text a", "text b"],
+)
 ```
 
-### `kayak.search_with_plan(query, index, plan, *, backend=NUMPY_REFERENCE_BACKEND)`
+## Layout Constructors
 
-Stage-aware search. Returns a `SearchPlanResult` with full intermediate state.
+These are direct constructors for already-materialized layouts.
+
+### `kayak.packed_index(doc_ids, doc_offsets, token_vectors, *, doc_texts=None)`
+
+Build a `LateIndex` directly in packed layout.
+
+Use this only when you already own packed storage fields.
+
+### `kayak.hybrid_flat_dim128_index(doc_ids, doc_offsets, token_values, *, doc_texts=None)`
+
+Build a `LateIndex` directly in `hybrid_flat_dim128` layout.
+
+Requires a 128-dimensional flattened token-value buffer.
+
+### `kayak.flat_query_dim128(token_values, *, text=None)`
+
+Build a `LateQuery` directly in `flat_dim128` layout from flat values.
+
+Requires 128-dimensional vectors.
+
+## Object Methods
+
+### `LateDocuments.pack()`
+
+Pack `LateDocuments` into a searchable `LateIndex`.
 
 ```python
-result = kayak.search_with_plan(query, index, plan)
+index = documents.pack()
 ```
 
-### `kayak.search_batch(batch, index, k, *, backend=NUMPY_REFERENCE_BACKEND)`
+## Text Encoders
 
-Top-k search for a batch of queries.
+### `kayak.CallableLateTextEncoder(query_encoder, document_encoder)`
 
----
+Wrap user-provided Python callables behind Kayak's text encoder contract.
 
-## Search plans
+### `kayak.ColBERTTextEncoder(model_name='colbert-ir/colbertv2.0', *, checkpoint=None, gpus=0)`
 
-### `kayak.exact_full_scan_search_plan(final_k, *, candidate_k=None, stage3_verifier=None)`
+Encode text with a ColBERT checkpoint into `LateQuery` and `LateDocuments`.
 
-Exact scan over all documents. Correct by definition, slow on large corpora.
+### `kayak.register_encoder(kind, factory, *, replace=False)`
 
-### `kayak.document_proxy_search_plan(final_k, candidate_k, *, query_vector_budget=0, document_vector_budget=0, stage2_reference_operator=None, stage3_verifier=None)`
+Register a custom encoder factory behind `open_encoder(...)`.
 
-Approximate candidate generation with exact MaxSim reranking.
+## Stores
 
-### `kayak.exact_full_scan_clause_text_search_plan(final_k, *, candidate_k=None)`
+### `kayak.MemoryLateStore()`
 
-Exact scan with clause-text stage-3 verifier.
+Keep late-interaction documents in memory and materialize `LateIndex` objects on demand.
 
----
+### `kayak.DirectoryLateStore(path)`
 
-## Stage operators
+Persist one local packed Kayak snapshot on disk and materialize it back into `LateIndex`.
 
-### Stage 1 — candidate generators
+### `kayak.LanceDBLateStore(path, *, table_name='late_documents')`
 
-| Function | Description |
-|----------|-------------|
-| `kayak.exact_full_scan_candidate_generator()` | Exact scan over all documents |
-| `kayak.document_proxy_candidate_generator(*, query_vector_budget=0, document_vector_budget=0)` | Approximate proxy-based candidate generation |
+Persist documents in LanceDB row storage and materialize `LateIndex` objects from the table.
 
-### Stage 2 — reference operators
+### `kayak.register_store(kind, factory, *, replace=False)`
 
-| Function | Description |
-|----------|-------------|
-| `kayak.exact_late_interaction_stage2_reference_operator()` | Exact MaxSim reranking |
-| `kayak.noop_topk_stage2_reference_operator()` | Pass through top-k from Stage 1 |
+Register a custom store factory behind `open_store(...)`.
 
-### Stage 3 — verifiers
+### `LateQuery.to_layout(layout)`
 
-| Function | Description |
-|----------|-------------|
-| `kayak.clause_text_stage3_verifier_operator()` | Text-aware refinement. Requires `query.text` and document texts. |
-| `kayak.none_stage3_verifier_operator()` | No stage-3 verification |
+Convert a query between:
 
----
+- `"nested"`
+- `"flat_dim128"`
 
-## Candidate generation
+`"flat_dim128"` requires `vector_dim == 128`.
 
-### `kayak.generate_candidates(query, index, generator, k, *, backend=NUMPY_REFERENCE_BACKEND)`
+### `LateIndex.to_layout(layout)`
+
+Convert an index between:
+
+- `"packed"`
+- `"hybrid_flat_dim128"`
+
+`"hybrid_flat_dim128"` requires `vector_dim == 128`.
+
+### `LateIndex.select(doc_ids)`
+
+Select a subset of documents and return a new index in the same layout.
+
+This is the mechanism search plans use when they materialize candidate windows
+for exact reranking.
+
+## Exact Operations
+
+### `kayak.maxsim(query, index, *, backend=kayak.NUMPY_REFERENCE_BACKEND)`
+
+Return exact scores for every document in the index.
+
+```python
+scores = kayak.maxsim(
+    query,
+    index,
+    backend=kayak.MOJO_EXACT_CPU_BACKEND,
+)
+```
+
+Returns `LateScores`.
+
+### `kayak.maxsim_batch(batch, index, *, backend=kayak.NUMPY_REFERENCE_BACKEND)`
+
+Return one `LateScores` object per query in the batch.
+
+### `kayak.search(query, index, *, k, backend=kayak.NUMPY_REFERENCE_BACKEND)`
+
+Return exact top-k `SearchHit` tuples.
+
+```python
+hits = kayak.search(
+    query,
+    index,
+    k=10,
+    backend=kayak.MOJO_EXACT_CPU_BACKEND,
+)
+```
+
+### `kayak.search_batch(batch, index, *, k, backend=kayak.NUMPY_REFERENCE_BACKEND)`
+
+Return exact top-k hits for each query in the batch.
+
+## Candidate Generation And Plans
+
+### `kayak.generate_candidates(query, index, generator, *, k, backend=kayak.NUMPY_REFERENCE_BACKEND)`
 
 Run stage-1 candidate generation directly.
 
@@ -180,44 +218,134 @@ result = kayak.generate_candidates(
     index,
     kayak.document_proxy_candidate_generator(),
     k=100,
+    backend=kayak.MOJO_EXACT_CPU_BACKEND,
 )
-
-result.hits             # candidate hits with approximate scores
-result.profile          # SearchStageProfile with vector counts
-result.candidate_doc_ids  # doc IDs of candidates
 ```
 
----
+Returns `CandidateStageResult`.
+
+### `kayak.search_with_plan(query, index, plan, *, backend=kayak.NUMPY_REFERENCE_BACKEND)`
+
+Run an explicit search plan and return `SearchPlanResult`.
+
+```python
+result = kayak.search_with_plan(
+    query,
+    index,
+    plan,
+    backend=kayak.MOJO_EXACT_CPU_BACKEND,
+)
+```
+
+## Plan Builders
+
+### `kayak.exact_full_scan_search_plan(final_k, *, candidate_k=None, stage2_reference_operator=None, stage3_verifier=None)`
+
+Build an exact full-scan plan.
+
+This is the correctness baseline.
+
+### `kayak.exact_full_scan_clause_text_search_plan(final_k, *, candidate_k=None)`
+
+Build an exact full-scan plan with clause-text stage-3 verification.
+
+### `kayak.document_proxy_search_plan(final_k, candidate_k, *, query_vector_budget=0, document_vector_budget=0, stage2_reference_operator=None, stage3_verifier=None)`
+
+Build an approximate-candidate plus exact-rerank plan.
+
+This is the main staged retrieval API.
+
+## Stage Components
+
+### Candidate generators
+
+- `kayak.exact_full_scan_candidate_generator()`
+- `kayak.document_proxy_candidate_generator(*, query_vector_budget=0, document_vector_budget=0)`
+
+### Stage-2 reference operators
+
+- `kayak.exact_late_interaction_stage2_reference_operator()`
+- `kayak.noop_topk_stage2_reference_operator()`
+
+### Stage-3 verifiers
+
+- `kayak.clause_text_stage3_verifier_operator()`
+- `kayak.none_stage3_verifier_operator()`
 
 ## Backends
 
-```python
-kayak.NUMPY_REFERENCE_BACKEND   # 'numpy_reference'
-kayak.MOJO_EXACT_CPU_BACKEND    # 'mojo_exact_cpu'
+### Constants
 
-kayak.available_backends()      # list of available backend names
-kayak.backend_info(name)        # BackendInfo for a specific backend
+```python
+kayak.NUMPY_REFERENCE_BACKEND
+kayak.MOJO_EXACT_CPU_BACKEND
 ```
 
----
+### `kayak.available_backends()`
+
+Return a tuple of available backend names.
+
+```python
+('numpy_reference', 'mojo_exact_cpu')
+```
+
+or, if Mojo is unavailable:
+
+```python
+('numpy_reference',)
+```
+
+### `kayak.backend_info(name)`
+
+Return a `BackendInfo` record with:
+
+- `name`
+- `available`
+- `requires_mojo`
+- `query_layouts`
+- `index_layouts`
+- `availability_reason`
+
+Use this instead of guessing why the Mojo backend is or is not available.
 
 ## Types
 
-| Type | Description |
-|------|-------------|
-| `LateQuery` | A query with explicit token vectors and optional text |
-| `LateQueryBatch` | A batch of queries with different token counts |
-| `LateDocuments` | A document collection before packing |
-| `LateIndex` | A packed, searchable index |
-| `LateScores` | Per-document MaxSim scores with `doc_ids` and `values` |
-| `SearchHit` | A single result: `doc_id` and `score` |
-| `SearchPlan` | An explicit retrieval pipeline description |
-| `SearchPlanResult` | Full result with per-stage intermediate state |
-| `SearchStageProfile` | Vector and document counts for one stage |
-| `CandidateStageResult` | Stage-1 output: hits, scores, and profile |
-| `CandidateGenerator` | Stage-1 generator descriptor |
-| `Stage2ReferenceOperator` | Stage-2 operator descriptor |
-| `Stage3VerifierOperator` | Stage-3 verifier descriptor |
-| `StageArtifactMaterialization` | What was materialized in a stage |
-| `ReferenceScoringSemantics` | Scoring semantics for stage-2 |
-| `BackendInfo` | Backend availability and metadata |
+### Core objects
+
+- `LateQuery`
+- `LateQueryBatch`
+- `LateDocuments`
+- `LateIndex`
+
+### Scoring and hits
+
+- `LateScores`
+- `SearchHit`
+
+### Plan and stage results
+
+- `SearchPlan`
+- `SearchPlanResult`
+- `CandidateStageResult`
+- `SearchStageProfile`
+- `StageArtifactMaterialization`
+
+### Descriptors
+
+- `CandidateGenerator`
+- `Stage2ReferenceOperator`
+- `Stage3VerifierOperator`
+- `ReferenceScoringSemantics`
+- `BackendInfo`
+
+## Notes On Mojo Usage
+
+If you want your own codebase to behave as "use Mojo by default," define a
+backend constant and thread it through the operations you call:
+
+```python
+BACKEND = kayak.MOJO_EXACT_CPU_BACKEND
+```
+
+That is the supported way to make Mojo your application default without hiding
+which executor is running.

@@ -1,79 +1,101 @@
 # Quickstart
 
-A working late-interaction search in under 20 lines.
+This is the shortest verified path to the Mojo backend from Python.
 
----
+It uses ColBERT-style 128-dimensional vectors because that is the shape the
+Mojo path is designed for.
 
-## 1. Create a query
-
-A query is a matrix of token vectors — one row per token.
+## One File, Mojo First
 
 ```python
-import kayak
 import numpy as np
+import kayak
 
-query = kayak.query(
-    np.array(
-        [[1.0, 0.0],
-         [0.0, 1.0]],
-        dtype=np.float32,
-    )
-)
-# 2 query tokens, 2-dimensional embeddings
-```
 
----
+def dim128(index: int) -> np.ndarray:
+    vector = np.zeros(128, dtype=np.float32)
+    vector[index] = 1.0
+    return vector
 
-## 2. Create documents
 
-Each document has its own number of token vectors — no padding required.
+BACKEND = kayak.MOJO_EXACT_CPU_BACKEND
 
-```python
-docs = kayak.documents(
-    ["doc-a", "doc-b", "doc-c"],
+query = kayak.query(np.stack([dim128(0), dim128(1)]))
+documents = kayak.documents(
+    ["doc-a", "doc-b"],
     [
-        np.array([[1.0, 0.0], [0.0, 1.0]], dtype=np.float32),
-        np.array([[1.0, 0.0], [0.5, 0.5]], dtype=np.float32),
-        np.array([[0.2, 0.8], [0.8, 0.2]], dtype=np.float32),
+        np.stack([dim128(0), dim128(1)]),
+        np.stack([dim128(0), dim128(0)]),
     ],
 )
+index = documents.pack()
+
+hits = kayak.search(query, index, k=2, backend=BACKEND)
+scores = kayak.maxsim(query, index, backend=BACKEND)
+
+print("hits:", [(hit.doc_id, hit.score) for hit in hits])
+print("scores:", scores.numpy().tolist())
 ```
 
----
+That is the core flow:
 
-## 3. Pack into an index
+1. Build a `LateQuery`.
+2. Build `LateDocuments`.
+3. Pack them into a `LateIndex`.
+4. Pass `backend=kayak.MOJO_EXACT_CPU_BACKEND`.
+
+## Why The `BACKEND` Variable Matters
+
+Installing Pixi plus Mojo makes the Mojo backend available.
+It does not make the SDK silently switch defaults.
+
+The `BACKEND` constant above is the recommended pattern when you want your own
+application code to behave as "use Mojo unless I override it."
+
+## A Slightly More Explicit 128-Dim Layout
+
+If you want the query and index layouts to be explicit too, convert them:
 
 ```python
-index = docs.pack()
+flat_query = query.to_layout("flat_dim128")
+hybrid_index = index.to_layout("hybrid_flat_dim128")
+
+scores = kayak.maxsim(
+    flat_query,
+    hybrid_index,
+    backend=BACKEND,
+)
 ```
 
----
+Use that form when you want to make the 128-dimensional flattened layout part
+of the code you reason about, benchmark, or profile.
 
-## 4. Search
+## Batch Search Against The Same Index
+
+If you have many queries for the same index, use the batch API:
 
 ```python
-hits = kayak.search(query, index, k=2)
+batch = kayak.query_batch(
+    [
+        np.stack([dim128(0), dim128(1)]),
+        np.stack([dim128(0), dim128(1), dim128(2)]),
+    ]
+)
 
-for hit in hits:
-    print(hit.doc_id, hit.score)
-# doc-a  2.0
-# doc-b  1.75
+hits_by_query = kayak.search_batch(
+    batch,
+    index,
+    k=2,
+    backend=BACKEND,
+)
 ```
 
----
+That is one of the main reasons to install Mojo in the first place.
 
-## 5. Score all documents
+## Next Steps
 
-```python
-scores = kayak.maxsim(query, index)
-
-print(scores.doc_ids)   # ('doc-a', 'doc-b', 'doc-c')
-print(scores.values)    # array([2.0, 1.75, 1.6], dtype=float32)
-```
-
----
-
-## Next steps
-
-- [Understand late interaction](concepts.md) — what MaxSim computes and why vector counts matter
-- [Use search plans](search-plans.md) — explicit multi-stage pipelines you can inspect and tune
+- [Usage Patterns](usage-patterns.md) for the shortest map from task to API
+- [real-usage-with-mojo.ipynb](notebooks/real-usage-with-mojo.ipynb) for a complete executed example
+- [Using the Mojo Backend](mojo-backend.md) for when to use each layout and API
+- [Late Interaction](concepts.md) for the scoring model and explicit vector budgets
+- [Search Plans](search-plans.md) for approximate stage 1 plus exact stage 2 pipelines

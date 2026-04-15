@@ -1,26 +1,20 @@
 # Search Plans
 
-The central idea in kayak: retrieval as an explicit, inspectable pipeline.
+Search plans are Kayak's way of making retrieval pipelines explicit and
+inspectable from Python.
 
----
+The important thing for Mojo users is this:
 
-## Why search plans exist
+- stage structure is explicit
+- candidate generation is explicit
+- exact reranking is explicit
+- backend choice is explicit
 
-Late interaction retrieval has multiple stages with real trade-offs at each one:
+That makes search plans the right place to reason about both quality and cost.
 
-- **Stage 1** generates candidates — fast and approximate, or slow and exact
-- **Stage 2** reranks them with exact MaxSim over the candidate window
-- **Stage 3** optionally verifies with text-level refinement
-
-Every choice affects latency, quality, and memory. Kayak makes those choices explicit as a Python object you build, run, and inspect.
-
----
-
-## Building a plan
+## A Plan Is A Description, Not Execution
 
 ```python
-import kayak
-
 plan = kayak.document_proxy_search_plan(
     final_k=10,
     candidate_k=100,
@@ -29,168 +23,242 @@ plan = kayak.document_proxy_search_plan(
 )
 ```
 
-The plan is a plain Python dataclass:
+Nothing runs yet.
+
+Execution starts when you call:
 
 ```python
-SearchPlan(
-    candidate_generator=document_proxy(
-        query_vector_budget=32,
-        document_vector_budget=64,
-    ),
-    final_k=10,
-    candidate_k=100,
-    stage2_reference_operator=exact_late_interaction,
-    stage3_verifier=none,
+result = kayak.search_with_plan(
+    query,
+    index,
+    plan,
+    backend=kayak.MOJO_EXACT_CPU_BACKEND,
 )
 ```
 
-Nothing runs until you call `search_with_plan`. The plan is just a description.
+That `backend=` argument is where you choose the exact executor for the plan.
 
----
+## What The Backend Changes Inside A Plan
 
-## Running a plan
+The backend matters only for the stages that perform exact late-interaction
+scoring.
+
+### `exact_full_scan_search_plan(...)`
+
+Stage 1 is already exact, so the plan defaults to:
+
+- exact full-scan candidate generation
+- `noop_topk` in stage 2
+
+When you run this plan with Mojo, the exact full scan is what uses the backend.
+
+### `document_proxy_search_plan(...)`
+
+Stage 1 is approximate document-proxy candidate generation.
+Stage 2 is exact late-interaction reranking.
+
+When you run this plan with Mojo:
+
+- stage 1 still does the approximate proxy scoring
+- stage 2 exact reranking uses the chosen backend
+
+That is usually the most important plan to run on Mojo.
+
+## Why These Plans Matter
+
+The talk makes a useful point that fits directly here:
+
+retrieve-and-rerank is only a good abstraction if the candidate generator
+actually reaches the relevant documents.
+
+That means the real question is not only:
+
+- "How strong is my reranker?"
+
+It is also:
+
+- "What recall did my candidate stage achieve before reranking even began?"
+
+Kayak exposes both because late interaction is most useful when you can inspect
+that boundary directly.
+
+## Exact Baseline Plan
+
+Use this as the correctness baseline:
 
 ```python
-result = kayak.search_with_plan(query, index, plan)
+exact_plan = kayak.exact_full_scan_search_plan(final_k=10)
+
+exact_result = kayak.search_with_plan(
+    query,
+    index,
+    exact_plan,
+    backend=kayak.MOJO_EXACT_CPU_BACKEND,
+)
 ```
 
----
+This answers:
 
-## Inspecting the result
+- What are the exact winners?
+- What is the exact full-scan cost?
 
-`SearchPlanResult` carries the full intermediate state of every stage.
+## Approximate Candidate Stage Plus Exact Mojo Rerank
 
-### Final results
+Use this when you want a realistic retrieval pipeline:
+
+```python
+approx_plan = kayak.document_proxy_search_plan(
+    final_k=10,
+    candidate_k=100,
+    query_vector_budget=32,
+    document_vector_budget=64,
+)
+
+approx_result = kayak.search_with_plan(
+    query,
+    index,
+    approx_plan,
+    backend=kayak.MOJO_EXACT_CPU_BACKEND,
+)
+```
+
+This answers:
+
+- Did stage 1 find the right candidate window?
+- How much exact stage-2 work did that candidate window create?
+- What trade-off did `candidate_k` buy me?
+
+This is the plan shape to use when you want to test whether a cheaper stage 1
+is still producing a candidate window that makes exact reranking worthwhile.
+
+## Inspecting The Result
+
+`SearchPlanResult` exposes the intermediate state directly.
 
 ```python
 result.hits
-# (SearchHit(doc_id='doc-a', score=1.92),
-#  SearchHit(doc_id='doc-c', score=1.87), ...)
-```
-
-### Stage 1 — what the candidate generator returned
-
-```python
 result.candidate_stage.hits
-# 100 candidates with approximate scores
+result.stage2_reference
+result.stage3_verifier
 ```
 
-### Stage 2 — the exact reranking
+The most important profiling fields are:
 
 ```python
-result.stage2_reference.stage_name             # 'exact_late_interaction'
-result.stage2_reference.input_hit_count        # 100 — candidates entering stage 2
-result.stage2_reference.output_hit_count       # 10  — final results
-result.stage2_reference.query_vector_count     # 32  — query vectors used
-result.stage2_reference.document_vector_count  # 6400 — doc vectors scored (100 × 64)
+result.stage2_reference.stage_name
+result.stage2_reference.input_hit_count
+result.stage2_reference.output_hit_count
+result.stage2_reference.query_vector_count
+result.stage2_reference.document_vector_count
 ```
 
-### Compare stage 1 and stage 2
+Those tell you how much exact work the plan actually executed.
+
+## Comparing Approximate And Exact Results
+
+This is the simplest faithfulness check:
 
 ```python
-stage1_ids = {hit.doc_id for hit in result.candidate_stage.hits[:10]}
-stage2_ids = {hit.doc_id for hit in result.hits}
-
-dropped   = stage1_ids - stage2_ids  # docs the reranker removed
-promoted  = stage2_ids - stage1_ids  # docs the reranker surfaced
-```
-
-This is how you verify that your Stage 1 approximation is actually finding the right candidates.
-
----
-
-## Stage 1 options
-
-### `exact_full_scan`
-
-Scores every document with exact MaxSim. No approximation. Correct by definition.
-
-```python
-plan = kayak.exact_full_scan_search_plan(final_k=10)
-```
-
-Use this as your correctness baseline. Slow on large corpora, but the right answer.
-
-### `document_proxy`
-
-Approximate candidate generation using per-document vector averages. Fast — skips most documents before exact scoring.
-
-```python
-plan = kayak.document_proxy_search_plan(
-    final_k=10,
-    candidate_k=100,
-    query_vector_budget=32,
-    document_vector_budget=64,
-)
-```
-
-`candidate_k` controls the trade-off: larger windows recover more of the exact results but cost more in Stage 2.
-
-`query_vector_budget` and `document_vector_budget` cap how many vectors the proxy uses — set to 0 to use all vectors.
-
----
-
-## Stage 2 options
-
-### `exact_late_interaction`
-
-Full MaxSim reranking over the candidate window. Default for approximate Stage 1.
-
-### `noop_topk`
-
-No reranking — take the top-k directly from Stage 1 scores. Default for `exact_full_scan` since Stage 1 is already exact.
-
----
-
-## Stage 3 — text verification
-
-Attach query text and document texts to enable text-aware refinement after exact reranking:
-
-```python
-query = kayak.query(vectors, text="founded in 1984 in a church")
-
-docs = kayak.documents(
-    ["doc-a", "doc-b"],
-    [vectors_a, vectors_b],
-    texts=[
-        "Zama Dance School was founded in 1984 in a church.",
-        "Lyon is a city in France.",
-    ],
-)
-index = docs.pack()
-
-plan = kayak.exact_full_scan_search_plan(
-    final_k=5,
-    candidate_k=20,
-    stage3_verifier=kayak.clause_text_stage3_verifier_operator(),
-)
-
-result = kayak.search_with_plan(query, index, plan)
-
-result.stage3_verifier.stage_name           # 'clause_text'
-result.stage3_verifier.document_text_count  # 20 — texts evaluated
-```
-
-Text is only attached when a text-family operator needs it. Kayak does not hide text behind generic tensors.
-
----
-
-## Measuring faithfulness
-
-How many of your approximate Stage 1 candidates match the exact full scan?
-
-```python
-exact_plan  = kayak.exact_full_scan_search_plan(final_k=10)
+exact_plan = kayak.exact_full_scan_search_plan(final_k=10)
 approx_plan = kayak.document_proxy_search_plan(final_k=10, candidate_k=100)
 
-exact_result  = kayak.search_with_plan(query, index, exact_plan)
-approx_result = kayak.search_with_plan(query, index, approx_plan)
+exact_result = kayak.search_with_plan(
+    query,
+    index,
+    exact_plan,
+    backend=kayak.MOJO_EXACT_CPU_BACKEND,
+)
+approx_result = kayak.search_with_plan(
+    query,
+    index,
+    approx_plan,
+    backend=kayak.MOJO_EXACT_CPU_BACKEND,
+)
 
-exact_ids  = {hit.doc_id for hit in exact_result.hits}
+exact_ids = {hit.doc_id for hit in exact_result.hits}
 approx_ids = {hit.doc_id for hit in approx_result.hits}
 
 recall = len(exact_ids & approx_ids) / len(exact_ids)
-print(f"Stage 1 recall: {recall:.0%}")
 ```
 
-This is how you tune `candidate_k` — increase it until recall is acceptable, then check Stage 2 latency against the cost you can afford.
+Use that before making claims about a candidate generator.
+
+If recall is poor here, the right fix is usually not "use a stronger stage-2
+reranker." The right fix is usually to widen or improve stage 1.
+
+## Candidate Generation Knobs
+
+`document_proxy_search_plan(...)` exposes the main stage-1 controls:
+
+- `candidate_k`
+- `query_vector_budget`
+- `document_vector_budget`
+
+`candidate_k` is the main recall-vs-cost knob.
+
+The vector budgets control how many vectors the proxy stage averages before
+producing candidate scores:
+
+- `0` means "use all available vectors"
+- smaller values reduce proxy-stage work
+- smaller values can also reduce candidate quality
+
+The important implication is that these budgets do not just tune latency. They
+also change what evidence stage 1 can even see.
+
+That is why Kayak keeps the budgets explicit in the plan object instead of
+hiding them in backend-specific config.
+
+## Stage 3 Text Verification
+
+You can add a text-family verifier after exact reranking:
+
+```python
+query = kayak.query(
+    query_vectors,
+    text="founded in 1984 in a church artistic director",
+)
+
+documents = kayak.documents(
+    ["doc-context", "doc-answer"],
+    [doc_vectors_a, doc_vectors_b],
+    texts=[
+        "Gugulethu township logo emblem heritage schools history",
+        "Zama Dance School was founded in 1984 in a church and the longest serving employee is the artistic director.",
+    ],
+)
+index = documents.pack()
+
+plan = kayak.exact_full_scan_search_plan(
+    final_k=1,
+    candidate_k=2,
+    stage3_verifier=kayak.clause_text_stage3_verifier_operator(),
+)
+
+result = kayak.search_with_plan(
+    query,
+    index,
+    plan,
+    backend=kayak.MOJO_EXACT_CPU_BACKEND,
+)
+```
+
+This requires:
+
+- `query.text`
+- `documents(..., texts=...)`
+
+The verifier is explicit because text materialization has real cost too.
+
+## What To Tune First
+
+If you are starting from scratch:
+
+1. Run an exact full-scan baseline.
+2. Run a document-proxy plan with a generous `candidate_k`.
+3. Measure overlap with the exact winners.
+4. Reduce or increase `candidate_k` based on recall and exact stage-2 cost.
+5. Keep the backend fixed while you tune the plan.
+
+That sequence gives you a defensible tuning workflow instead of anecdotal
+"seems good enough" iteration.

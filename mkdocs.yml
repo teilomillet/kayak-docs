@@ -1,5 +1,5 @@
 site_name: kayak
-site_description: Late-interaction retrieval for Python
+site_description: Late-interaction retrieval for Python with an explicit Mojo exact CPU backend
 site_url: https://docs.withkayak.com
 
 theme:
@@ -34,9 +34,13 @@ nav:
   - Get Started:
     - Installation: installation.md
     - Quickstart: quickstart.md
+    - Usage Patterns: usage-patterns.md
+    - Storage + Search: storage-and-search.md
+    - Using the Mojo Backend: mojo-backend.md
   - Guides:
     - Late Interaction: concepts.md
     - Search Plans: search-plans.md
+    - Vector Databases: vector-databases.md
   - API Reference: api.md
 
 markdown_extensions:

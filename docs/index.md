@@ -1,28 +1,89 @@
-# kayak
+# Kayak Python SDK
 
-**Late-interaction retrieval for Python.**
+Kayak is a local Python SDK for late-interaction retrieval.
 
-Kayak makes token-level MaxSim scoring programmable — the retrieval method behind ColBERT. It keeps the structure of late interaction explicit instead of hiding it behind a generic tensor API.
+It keeps the parts that matter explicit:
 
----
+- query vector count
+- document vector count
+- index layout
+- backend choice
+- candidate window size
 
-## The problem with existing tools
+That is the point of the SDK. You should be able to see what the retrieval
+pipeline is doing, measure it, and change it deliberately.
 
-Most vector search APIs work like this:
+## If You Want Mojo, Start With Pixi
 
-```python
-results = db.search(vector, k=10)  # what happened inside?
+If your goal is to use the Mojo backend, do not stop at:
+
+```bash
+uv add kayak
 ```
 
-You get results. You don't see how many document vectors were scored, what the candidate window looked like before reranking, or which stage cost the most.
+That installs the Python package, but not the Mojo CLI. In that setup Kayak
+will expose only the NumPy reference backend.
 
-With late interaction, that opacity is a problem. Token-level MaxSim is more expressive than single-vector search, but query vector count, document vector count, and candidate window size all directly affect latency, memory, and retrieval quality. You need to see them to reason about them.
+The verified path for the Mojo backend is:
 
----
+1. Create or use a Pixi environment that includes Mojo.
+2. Install `kayak` into that same environment.
+3. Pass `backend=kayak.MOJO_EXACT_CPU_BACKEND` on the calls you want on Mojo.
 
-## How kayak is different
+Use the [installation guide](installation.md) for the exact workflow.
 
-Kayak gives you a **search plan** — an explicit, inspectable object that describes every stage of the retrieval pipeline.
+## What The Mojo Backend Is For
+
+`kayak.MOJO_EXACT_CPU_BACKEND` is the exact CPU scorer for the Python SDK.
+
+Use it when you want:
+
+- exact local MaxSim scoring on ColBERT-style embeddings
+- exact top-k search from Python
+- exact reranking inside explicit search plans
+- repeated queries against the same index, including batch search
+
+It does not silently replace the default backend. Kayak keeps backend choice
+explicit on purpose.
+
+## Minimal Mojo Example
+
+The validated Mojo path is ColBERT-style 128-dimensional embeddings.
+
+```python
+import numpy as np
+import kayak
+
+
+def dim128(index: int) -> np.ndarray:
+    vector = np.zeros(128, dtype=np.float32)
+    vector[index] = 1.0
+    return vector
+
+
+backend = kayak.MOJO_EXACT_CPU_BACKEND
+
+query = kayak.query(np.stack([dim128(0), dim128(1)]))
+index = kayak.documents(
+    ["doc-a", "doc-b"],
+    [
+        np.stack([dim128(0), dim128(1)]),
+        np.stack([dim128(0), dim128(0)]),
+    ],
+).pack()
+
+hits = kayak.search(query, index, k=2, backend=backend)
+scores = kayak.maxsim(query, index, backend=backend)
+```
+
+The important pattern is the `backend` variable. That is how you make your own
+application code default to Mojo, even though the SDK itself does not switch
+defaults automatically.
+
+## Why Kayak Is Different
+
+Most vector search APIs hide the retrieval pipeline behind a single method call.
+Kayak does not.
 
 ```python
 plan = kayak.document_proxy_search_plan(
@@ -32,33 +93,32 @@ plan = kayak.document_proxy_search_plan(
     document_vector_budget=64,
 )
 
-result = kayak.search_with_plan(query, index, plan)
+result = kayak.search_with_plan(
+    query,
+    index,
+    plan,
+    backend=kayak.MOJO_EXACT_CPU_BACKEND,
+)
 
-result.hits                                        # final results
-result.candidate_stage.hits                        # before reranking
-result.stage2_reference.query_vector_count         # vectors used
-result.stage2_reference.document_vector_count      # doc vectors scored
+result.hits
+result.candidate_stage.hits
+result.stage2_reference.query_vector_count
+result.stage2_reference.document_vector_count
 ```
 
-Every stage is visible. Nothing is hidden in a config string or applied server-side without your knowledge.
+That makes it practical to answer questions like:
 
----
+- How many query vectors did stage 2 really score?
+- How many document vectors did the candidate window force me to touch?
+- Did my approximate candidate generator preserve the exact top-k?
 
-## Install
+## Read Next
 
-```bash
-pip install kayak
-```
-
-Python 3.11+. No GPU required.
-
-→ [Full installation guide](installation.md)
-
----
-
-## When to use kayak
-
-- You're working with **ColBERT-style embeddings** and need token-level MaxSim
-- You want to **understand the trade-offs** between latency, quality, and memory at each retrieval stage
-- You need a path from **local experimentation to production** without changing your mental model
-- You want retrieval results you can **explain and debug**, not just rankings
+- [Installation](installation.md) for the Pixi plus Mojo setup
+- [Quickstart](quickstart.md) for a working Mojo-first script
+- [Usage Patterns](usage-patterns.md) for which API to call for each task
+- [Storage + Search](storage-and-search.md) for the vector-db-as-storage, Kayak-as-search-engine deployment shape
+- [Using the Mojo Backend](mojo-backend.md) for how to make Mojo your normal code path
+- [Vector Database Integrations](vector-databases.md) for LanceDB, Qdrant, Weaviate, ChromaDB, and generic stage-1/stage-2 handoff patterns
+- [Late Interaction](concepts.md) for the scoring model and explicit vector budgets
+- [Search Plans](search-plans.md) for approximate stage 1 plus exact stage 2 pipelines
