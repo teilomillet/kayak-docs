@@ -8,6 +8,41 @@ The SDK is designed so you can answer three questions directly from code:
 2. How many vectors did that require?
 3. Which backend executed the exact path?
 
+## Use This Page For
+
+=== "I Want The Scoring Model"
+
+    Read:
+
+    - [MaxSim](#maxsim)
+    - [Late Interaction Is Not Just "Multi-Vector"](#late-interaction-is-not-just-multi-vector)
+
+=== "I Want The Cost Model"
+
+    Read:
+
+    - [Why Vector Counts Matter](#why-vector-counts-matter)
+    - [Layout Is Explicit Too](#layout-is-explicit-too)
+    - [Backend Choice Changes The Executor, Not The Math](#backend-choice-changes-the-executor-not-the-math)
+
+=== "I Want Retrieval Pipeline Intuition"
+
+    Read:
+
+    - [Candidate Generation And Reranking](#candidate-generation-and-reranking)
+    - [Why Reranking Alone Is Not Enough](#why-reranking-alone-is-not-enough)
+    - [The Retrieval Constraint Is Sublinear Search](#the-retrieval-constraint-is-sublinear-search)
+
+=== "I Want The Actual APIs"
+
+    This page explains the model.
+
+    Use:
+
+    - [Usage Patterns](usage-patterns.md)
+    - [Search Plans](search-plans.md)
+    - [API Reference](api.md)
+
 ## Dense Retrieval Vs. Late Interaction
 
 Dense retrieval compresses the query to one vector and compresses each document
@@ -216,3 +251,10 @@ That is the shape where:
 If you are still sketching logic with tiny toy arrays, use the NumPy reference
 path. Use 128-dimensional examples when you want to exercise the real Mojo
 workflow.
+
+## Read Next
+
+- [Quickstart](quickstart.md) for the shortest working Mojo path
+- [Usage Patterns](usage-patterns.md) for the task-to-API map
+- [Search Plans](search-plans.md) for explicit staged retrieval
+- [Using the Mojo Backend](mojo-backend.md) for the executor contract

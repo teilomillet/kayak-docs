@@ -15,6 +15,44 @@ Use this page when:
 - you want to reuse that snapshot from Python instead of reloading it per query
 - you want one explicit local runtime for many same-process callers
 
+## Choose The Hosted Python Shape
+
+=== "One Caller Owns The Query Loop"
+
+    Use:
+
+    - `prepare_exact_search_session(...)`
+
+    Choose this when one caller reuses one pinned snapshot directly.
+
+=== "Many Callers Share One Fixed Snapshot"
+
+    Use:
+
+    - `prepare_exact_search_runtime(...)`
+    - `concurrency_lane_count` to raise same-snapshot concurrent capacity
+
+    Choose this when one Python process needs one explicit multi-caller runtime.
+
+=== "I Need Futures And Batching"
+
+    Use:
+
+    - `runtime.submit(...)`
+    - `runtime.stats()`
+
+    Choose this when callers submit work independently and you want explicit
+    queue and batch behavior.
+
+=== "I Actually Want The Public SDK"
+
+    This is the wrong page.
+
+    Use:
+
+    - [Usage Patterns](usage-patterns.md)
+    - [API Reference](api.md)
+
 ## One Pinned Snapshot
 
 Use `prepare_exact_search_session(...)` when one caller owns the query loop and
@@ -235,3 +273,9 @@ Current boundary:
 - `kayak_engine.prepare_exact_search_scheduler(...)` remains a compatibility
   alias
 - `python -m kayak_engine.server ...` is still the current hosted HTTP transport
+
+## Read Next
+
+- [Usage Patterns](usage-patterns.md) when you want the public `import kayak` path
+- [API Reference](api.md) when you want the open SDK surface instead of hosted snapshot reuse
+- [Storage + Search](storage-and-search.md) when your data lives in an external database instead of a hosted snapshot

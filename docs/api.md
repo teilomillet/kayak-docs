@@ -15,6 +15,48 @@ Hosted-engine Python note:
 - for pinned hosted snapshots and the local exact-search scheduler, see
   [Hosted Engine Python](hosted-engine-python.md)
 
+## Choose The API Section
+
+=== "I Need The Main Entry Point"
+
+    Start with:
+
+    - `kayak.open_text_retriever(...)` for one high-level text workflow
+    - `kayak.open_encoder(...)` if you need encoder control
+    - `kayak.open_store(...)` if you need persistence control
+
+=== "I Already Have Vectors"
+
+    Start with:
+
+    - `kayak.query(...)`
+    - `kayak.documents(...).pack()`
+    - `kayak.search(...)`
+    - `kayak.search_batch(...)`
+
+=== "I Need A Database Adapter"
+
+    Jump to:
+
+    - [Stores](#stores)
+    - [Storage + Search](storage-and-search.md)
+    - [Vector Databases](vector-databases.md)
+
+=== "I Need Plans Or Candidate Stages"
+
+    Jump to:
+
+    - [Candidate Generation And Plans](#candidate-generation-and-plans)
+    - [Search Plans](search-plans.md)
+
+=== "I Need Hosted Snapshot Reuse"
+
+    This is the wrong page.
+
+    Use:
+
+    - [Hosted Engine Python](hosted-engine-python.md)
+
 ## Constructors
 
 ### `kayak.open_encoder(kind, **kwargs)`
@@ -362,6 +404,14 @@ result = kayak.search_with_plan(
     backend=kayak.MOJO_EXACT_CPU_BACKEND,
 )
 ```
+
+## Read Next
+
+- [Usage Patterns](usage-patterns.md) when you want the shortest path from task to API
+- [Text Encoders](text-encoders.md) when you need to choose between ColBERT and your own model
+- [Storage + Search](storage-and-search.md) when persistence already lives elsewhere
+- [Search Plans](search-plans.md) when you need explicit stage reasoning
+- [Hosted Engine Python](hosted-engine-python.md) when your real target is `import kayak_engine`
 
 ## Plan Builders
 

@@ -47,6 +47,11 @@
   padding-top: 0.35rem;
 }
 
+.md-footer-nav,
+.md-footer-meta {
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+}
+
 .md-typeset .admonition,
 .md-typeset details {
   border-radius: 0.85rem;

@@ -12,6 +12,35 @@ The important thing for Mojo users is this:
 
 That makes search plans the right place to reason about both quality and cost.
 
+## Choose The Plan Task
+
+=== "I Need The Exact Baseline"
+
+    Start with:
+
+    - `kayak.exact_full_scan_search_plan(...)`
+    - [Exact Baseline Plan](#exact-baseline-plan)
+
+=== "I Need Candidate Stage Plus Exact Rerank"
+
+    Start with:
+
+    - `kayak.document_proxy_search_plan(...)`
+    - [Approximate Candidate Stage Plus Exact Mojo Rerank](#approximate-candidate-stage-plus-exact-mojo-rerank)
+
+=== "I Need To Check Whether Stage 1 Is Good Enough"
+
+    Jump to:
+
+    - [Comparing Approximate And Exact Results](#comparing-approximate-and-exact-results)
+    - [Candidate Generation Knobs](#candidate-generation-knobs)
+
+=== "I Need Text Verification After Rerank"
+
+    Jump to:
+
+    - [Stage 3 Text Verification](#stage-3-text-verification)
+
 ## A Plan Is A Description, Not Execution
 
 ```python
@@ -262,3 +291,9 @@ If you are starting from scratch:
 
 That sequence gives you a defensible tuning workflow instead of anecdotal
 "seems good enough" iteration.
+
+## Read Next
+
+- [Usage Patterns](usage-patterns.md) when you want the shorter task-to-API version
+- [Late Interaction](concepts.md) when you want the underlying cost model
+- [API Reference](api.md) when you want the exact constructor and return types
