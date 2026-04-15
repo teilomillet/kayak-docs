@@ -1,4 +1,4 @@
-site_name: kayak
+site_name: Kayak
 site_description: Late-interaction retrieval for Python with an explicit Mojo exact CPU backend
 site_url: https://docs.withkayak.com
 repo_url: https://github.com/teilomillet/kayak-docs
@@ -10,59 +10,69 @@ theme:
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: black
-      accent: indigo
+      primary: blue grey
+      accent: blue
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: black
-      accent: indigo
+      primary: blue grey
+      accent: blue
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
   font:
-    text: Inter
-    code: JetBrains Mono
+    text: Public Sans
+    code: IBM Plex Mono
   features:
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.path
     - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.sections
+    - navigation.indexes
     - navigation.expand
     - navigation.footer
     - navigation.top
     - navigation.tracking
     - search.suggest
+    - search.share
     - search.highlight
     - content.action.edit
     - content.action.view
     - content.code.copy
     - content.code.annotate
     - content.tabs.link
+    - content.tooltips
     - toc.follow
 
 nav:
-  - Home: index.md
-  - Get Started:
-    - Start Here: start-here.md
+  - Overview:
+    - Home: index.md
+    - Choose Your Path: start-here.md
     - Installation: installation.md
     - Quickstart: quickstart.md
+  - Guides:
     - Text Encoders: text-encoders.md
     - Usage Patterns: usage-patterns.md
-    - Examples: examples.md
-  - Integrations:
     - Storage + Search: storage-and-search.md
     - Vector Databases: vector-databases.md
-    - Using the Mojo Backend: mojo-backend.md
-    - Hosted Engine Python: hosted-engine-python.md
+    - Mojo Backend: mojo-backend.md
+    - Examples: examples.md
   - Concepts:
     - Late Interaction: concepts.md
     - Search Plans: search-plans.md
   - Reference:
-    - API Reference: api.md
+    - Python API: api.md
+    - Hosted Engine Python: hosted-engine-python.md
 
 extra_css:
   - stylesheets/extra.css
+
+extra:
+  generator: false
 
 markdown_extensions:
   - md_in_html

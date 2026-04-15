@@ -1,39 +1,55 @@
-# Installation
+<div class="kayak-hero kayak-hero--compact" markdown>
+<div class="kayak-hero__main" markdown>
 
-## The Short Version
+<p class="kayak-eyebrow">Verified setup paths</p>
 
-Any Python environment manager works.
+# Install Kayak in the same environment as a usable `mojo` CLI
 
-If you want the Mojo backend, Kayak needs to be able to find a usable `mojo`
-CLI. That is the actual requirement.
+<p class="kayak-lead">
+That is the real requirement. UV, pip, and Pixi can all work. The deciding
+factor is whether Kayak can actually discover a usable `mojo` command when your
+Python code runs.
+</p>
 
-If you install only the Python package with `uv add kayak` or `pip install
-kayak`, and no usable Mojo CLI is visible, Kayak will still work but it will
-default to the NumPy reference backend.
+<div class="kayak-action-row" markdown>
 
-Verified setup shapes:
+[Quickstart](quickstart.md){ .md-button .md-button--primary }
+[Choose your path](start-here.md){ .md-button }
 
-| Setup | Result |
+</div>
+
+</div>
+<aside class="kayak-hero__aside" markdown>
+
+<ul class="kayak-stat-list">
+  <li>
+    <span class="kayak-stat-label">Python-only install</span>
+    <span class="kayak-stat-value"><code>numpy_reference</code> backend only</span>
+  </li>
+  <li>
+    <span class="kayak-stat-label">Mojo-capable install</span>
+    <span class="kayak-stat-value"><code>mojo_exact_cpu</code> is available and the high-level retriever prefers it automatically</span>
+  </li>
+  <li>
+    <span class="kayak-stat-label">Best verification command</span>
+    <span class="kayak-stat-value"><code>print(kayak.available_backends())</code> and <code>print(kayak.mojo_bridge_info())</code></span>
+  </li>
+</ul>
+
+</aside>
+</div>
+
+## Setup Outcomes At A Glance
+
+| Setup shape | Result |
 | --- | --- |
 | `uv add kayak` or `pip install kayak` with no usable `mojo` CLI | `numpy_reference` only |
 | `uv add kayak` in an environment where `mojo` is already installed and discoverable | `mojo_exact_cpu` is available |
 | `pixi add python=3.11 ... mojo` plus `pixi add --pypi kayak` | `mojo_exact_cpu` is available |
 
-Kayak wheels bundle the Mojo backend they were built with. If your first
-`mojo_exact_cpu` call reports that the bundled backend and the active Mojo
-compiler do not match, upgrade `kayak` and `mojo` together so both come from
-compatible releases.
+## Choose The Install Path That Matches Your Environment
 
-That distinction is verified in the code:
-
-- `numpy_reference` is always available
-- `mojo_exact_cpu` appears only when Kayak can find a usable `mojo` command
-- low-level operations like `search(...)` and `maxsim(...)` never auto-switch from NumPy to Mojo
-- `open_text_retriever(...)` prefers Mojo automatically when the backend is actually available
-
-## Choose Your Install Path
-
-=== "I Want Mojo Now"
+=== "I want Mojo now"
 
     Use one environment where Python, Mojo, and Kayak live together.
 
@@ -49,12 +65,11 @@ That distinction is verified in the code:
     import kayak
     print(kayak.available_backends())
     print(kayak.backend_info(kayak.MOJO_EXACT_CPU_BACKEND).availability_reason)
+    print(kayak.mojo_bridge_info())
     PY
     ```
 
-    Use this when you want the shortest verified path to `mojo_exact_cpu`.
-
-=== "I Already Have Mojo"
+=== "I already have Mojo"
 
     If a usable `mojo` CLI is already in the active environment or on `PATH`,
     you can keep using UV or pip.
@@ -66,13 +81,11 @@ That distinction is verified in the code:
     import kayak
     print(kayak.available_backends())
     print(kayak.backend_info(kayak.MOJO_EXACT_CPU_BACKEND).availability_reason)
+    print(kayak.mojo_bridge_info())
     PY
     ```
 
-    Use this when your environment already owns Mojo and you just need Kayak to
-    see it.
-
-=== "I Only Need Python First"
+=== "I only need Python first"
 
     Install Kayak by itself:
 
@@ -80,15 +93,35 @@ That distinction is verified in the code:
     uv add kayak
     ```
 
-    In that setup Kayak works, but only the NumPy backend is available:
+    In that setup Kayak still works, but only the NumPy backend is available:
 
     ```python
     ('numpy_reference',)
     ```
 
-    Use this when you want to start with the Python SDK now and add Mojo later.
+## Recommended Verification
 
-## One Verified Way: One Environment With Mojo Plus Kayak
+Run this after install regardless of environment manager:
+
+```bash
+python - <<'PY'
+import kayak
+
+print(kayak.available_backends())
+print(kayak.backend_info(kayak.MOJO_EXACT_CPU_BACKEND).availability_reason)
+print(kayak.mojo_bridge_info())
+print(kayak.doctor())
+PY
+```
+
+Use this to verify four facts:
+
+- the package imports correctly
+- the exact backend is visible
+- Kayak can explain how it found Mojo
+- the public diagnostics report matches the environment you intended
+
+## One Verified Mojo-Capable Path
 
 Kayak currently validates the Mojo dependency in the range:
 
@@ -96,30 +129,15 @@ Kayak currently validates the Mojo dependency in the range:
 >=0.26.3.0.dev2026041020,<0.27
 ```
 
-One verified way to do that is a Pixi workspace that already includes
-Modular's `max-nightly` channel and `conda-forge`. Install the Python runtime,
-Mojo, and Kayak together:
+One verified way to satisfy that is a Pixi workspace that already includes
+Modular's `max-nightly` channel and `conda-forge`:
 
 ```bash
 pixi add python=3.11 "mojo>=0.26.3.0.dev2026041020,<0.27"
 pixi add --pypi kayak
 ```
 
-Then verify that Kayak can see the backend:
-
-```bash
-pixi run python - <<'PY'
-import kayak
-
-print(kayak.available_backends())
-info = kayak.backend_info(kayak.MOJO_EXACT_CPU_BACKEND)
-print(info.available)
-print(info.availability_reason)
-print(kayak.mojo_bridge_info())
-PY
-```
-
-Expected shape:
+Expected verification shape:
 
 ```python
 ('numpy_reference', 'mojo_exact_cpu')
@@ -127,12 +145,13 @@ True
 'Kayak can invoke Mojo via: ...'
 ```
 
-This is an easy Mojo-capable setup, but it is not the only valid setup.
+Pixi is not required. It is just one clear way to keep Python, Mojo, and Kayak
+in the same environment.
 
 ## UV Plus A Preinstalled Mojo CLI
 
-If you already have a working `mojo` CLI in the same Python environment, or on
-`PATH`, UV is enough too:
+If the environment already owns a working `mojo` CLI, UV is also a correct
+Mojo-capable setup:
 
 ```bash
 mojo --version
@@ -145,18 +164,18 @@ print(kayak.mojo_bridge_info())
 PY
 ```
 
-That is a valid Mojo-capable setup.
-
-UV is correct when the environment already owns Mojo. Pixi is just another way
-to make that environment explicit in one place.
+This is the right path when your environment management is already settled and
+you only need Kayak to bind to that existing Mojo install.
 
 ## Optional Store Adapters
 
-The core SDK does not require external database clients.
+The core SDK does not require external database clients. Install only the
+adapter you actually plan to use.
 
-Install only the extra adapter you actually plan to use.
+<div class="kayak-card-grid" markdown>
 
-For the public LanceDB store adapter:
+<section class="kayak-card" markdown>
+### LanceDB
 
 ```bash
 uv add lancedb pyarrow
@@ -167,10 +186,10 @@ or:
 ```bash
 pixi add --pypi lancedb pyarrow
 ```
+</section>
 
-Then `kayak.open_store("lancedb", ...)` becomes available in that environment.
-
-For the public Qdrant store adapter:
+<section class="kayak-card" markdown>
+### Qdrant
 
 ```bash
 uv add qdrant-client
@@ -181,10 +200,10 @@ or:
 ```bash
 pixi add --pypi qdrant-client
 ```
+</section>
 
-Then `kayak.open_store("qdrant", ...)` becomes available.
-
-For the public Weaviate store adapter:
+<section class="kayak-card" markdown>
+### Weaviate
 
 ```bash
 uv add weaviate-client
@@ -195,10 +214,10 @@ or:
 ```bash
 pixi add --pypi weaviate-client
 ```
+</section>
 
-Then `kayak.open_store("weaviate", ...)` becomes available.
-
-For the public Chroma store adapter:
+<section class="kayak-card" markdown>
+### Chroma
 
 ```bash
 uv add chromadb
@@ -209,10 +228,10 @@ or:
 ```bash
 pixi add --pypi chromadb
 ```
+</section>
 
-Then `kayak.open_store("chromadb", ...)` becomes available.
-
-For the public pgvector store adapter:
+<section class="kayak-card" markdown>
+### PgVector
 
 ```bash
 uv add "psycopg[binary]" pgvector
@@ -223,25 +242,26 @@ or:
 ```bash
 pixi add --pypi "psycopg[binary]" pgvector
 ```
+</section>
 
-Then `kayak.open_store("pgvector", ...)` becomes available.
+</div>
 
-## What Not To Do
+## What Not To Assume
 
-If your intent is "I want the Mojo backend," do not document or recommend only:
+If your intent is “I want the Mojo backend,” do not stop at:
 
 ```bash
 uv add kayak
 ```
 
-That installs the SDK, not Mojo itself. In that environment `available_backends()`
-will normally return only:
+That installs the Python SDK, not Mojo itself. In that environment
+`available_backends()` will normally return only:
 
 ```python
 ('numpy_reference',)
 ```
 
-The package works, but the exact CPU Mojo backend is not installed yet.
+The SDK works, but the exact CPU Mojo backend is not available yet.
 
 ## How Kayak Finds Mojo
 
@@ -257,102 +277,3 @@ If you have multiple Mojo installs, set `KAYAK_MOJO_CLI` explicitly:
 ```bash
 export KAYAK_MOJO_CLI=/full/path/to/mojo
 ```
-
-`KAYAK_MOJO_CLI` can also be a full command prefix when you need a wrapper:
-
-```bash
-export KAYAK_MOJO_CLI="bash /full/path/to/run_mojo_with_wrapper.sh"
-```
-
-That removes ambiguity and is the right choice for CI or shared dev machines.
-
-## Public Bridge Diagnostics
-
-If you want one public SDK call that summarizes the Python-to-Mojo connection,
-use:
-
-```python
-import kayak
-
-print(kayak.mojo_bridge_info())
-```
-
-That reports:
-
-- whether the Mojo backend is available
-- which command Kayak would invoke
-- whether the package is using bundled wheel artifacts or repo sources
-- the active Mojo CLI version when one is visible
-- bundled wheel metadata when the package ships a bundled backend
-
-If you want to go further and actually test whether the extension can build or
-load, use:
-
-```python
-import kayak
-
-print(kayak.mojo_bridge_info(probe_load=True))
-```
-
-`probe_load=True` is intentionally a stronger check. It can trigger the actual
-bridge build/load path for the Mojo exact backend.
-
-## The Backend Still Stays Explicit In Code
-
-Any setup that makes a usable `mojo` CLI visible to Kayak makes the backend
-available. The low-level SDK still keeps backend choice explicit.
-
-The one high-level exception is `open_text_retriever(...)`, which prefers Mojo
-automatically when the active environment can run it.
-
-If you want your application code to behave as "Mojo by default," define the
-backend once and reuse it:
-
-```python
-import kayak
-
-BACKEND = kayak.MOJO_EXACT_CPU_BACKEND
-
-hits = kayak.search(query, index, k=10, backend=BACKEND)
-scores = kayak.maxsim(query, index, backend=BACKEND)
-result = kayak.search_with_plan(query, index, plan, backend=BACKEND)
-```
-
-That pattern is explicit, easy to grep, and easy to override in tests.
-
-## First Use Behavior
-
-The first call that uses the Mojo backend can take longer than steady-state
-calls. Kayak may need to:
-
-- detect the Mojo CLI
-- build a `kayak.mojopkg`
-- build a Python extension module for the backend
-- prepare reusable index state for exact search
-
-Do not treat the first Mojo call as representative of steady-state latency.
-
-## Backend Inspection API
-
-Use these methods to verify the runtime contract instead of guessing:
-
-```python
-import kayak
-
-print(kayak.available_backends())
-
-info = kayak.backend_info(kayak.MOJO_EXACT_CPU_BACKEND)
-print(info.name)
-print(info.available)
-print(info.requires_mojo)
-print(info.query_layouts)
-print(info.index_layouts)
-print(info.availability_reason)
-```
-
-`available_backends()` returns a tuple of backend names, not a list.
-
-## Recommended Reading After Install
-
-- [Quickstart](quickstart.md) for the shortest working Mojo-first script
-- [Using the Mojo Backend](mojo-backend.md) for how to make Mojo your normal application path

@@ -1,19 +1,35 @@
-# Quickstart
+<div class="kayak-hero kayak-hero--compact" markdown>
+<div class="kayak-hero__main" markdown>
 
-This is the shortest verified path to the Mojo backend from Python.
+<p class="kayak-eyebrow">Shortest working example</p>
 
-It uses ColBERT-style 128-dimensional vectors because that is the shape the
-Mojo path is designed for.
+# Run one exact search on the Mojo backend from Python
 
-## If This Is Not Your Starting Point
+<p class="kayak-lead">
+This is the shortest verified path once installation is correct. It uses
+ColBERT-style 128-dimensional vectors because that is the shape the Mojo exact
+path is designed for.
+</p>
 
-| If you are really trying to... | Go to... |
-| --- | --- |
-| install Kayak and make Mojo show up correctly | [Installation](installation.md) |
-| start from raw text instead of precomputed vectors | [Text Encoders](text-encoders.md) and [Usage Patterns](usage-patterns.md) |
-| keep an existing vector database | [Storage + Search](storage-and-search.md) |
-| run many queries against one fixed loaded slice | [Usage Patterns](usage-patterns.md) and [batch-search-on-one-loaded-lancedb-slice.ipynb](notebooks/batch-search-on-one-loaded-lancedb-slice.ipynb) |
-| choose by your situation instead of by API name | [Start Here](start-here.md) |
+<div class="kayak-action-row" markdown>
+
+[Installation](installation.md){ .md-button .md-button--primary }
+[Usage Patterns](usage-patterns.md){ .md-button }
+[Open notebook](notebooks/real-usage-with-mojo.ipynb){ .md-button }
+
+</div>
+
+</div>
+<aside class="kayak-hero__aside" markdown>
+
+<ul class="kayak-link-list">
+  <li><strong>Inputs</strong> one query, one document set, 128-dimensional token vectors</li>
+  <li><strong>Core APIs</strong> <code>kayak.query(...)</code>, <code>kayak.documents(...).pack()</code>, <code>kayak.search(...)</code></li>
+  <li><strong>Backend</strong> pass <code>backend=kayak.MOJO_EXACT_CPU_BACKEND</code> explicitly on low-level calls</li>
+</ul>
+
+</aside>
+</div>
 
 ## One File, Mojo First
 
@@ -47,15 +63,40 @@ print("hits:", [(hit.doc_id, hit.score) for hit in hits])
 print("scores:", scores.numpy().tolist())
 ```
 
-That is the core flow:
+## What That Script Does
 
-1. Build a `LateQuery`.
-2. Build `LateDocuments`.
-3. Pack them into a `LateIndex`.
-4. Pass `backend=kayak.MOJO_EXACT_CPU_BACKEND`.
+<div class="kayak-card-grid" markdown>
 
-If you start from text instead of precomputed vectors, use one encoder plus one
-retriever:
+<section class="kayak-card" markdown>
+### 1. Build the query
+
+<code>kayak.query(...)</code> wraps one token matrix as a <code>LateQuery</code>.
+</section>
+
+<section class="kayak-card" markdown>
+### 2. Build the documents
+
+<code>kayak.documents(...)</code> collects aligned ids and token matrices.
+</section>
+
+<section class="kayak-card" markdown>
+### 3. Pack the index
+
+<code>.pack()</code> materializes the search-ready <code>LateIndex</code>.
+</section>
+
+<section class="kayak-card" markdown>
+### 4. Search explicitly
+
+<code>kayak.search(...)</code> and <code>kayak.maxsim(...)</code> run exact scoring on the selected
+backend.
+</section>
+
+</div>
+
+## If You Start From Text Instead Of Vectors
+
+Use one encoder plus one retriever:
 
 ```python
 retriever = kayak.open_text_retriever(
@@ -69,25 +110,13 @@ retriever.upsert_texts(doc_ids, texts)
 hits = retriever.search_text(query_text, k=10)
 ```
 
-For the shortest explanation of encoder choice, see [Text Encoders](text-encoders.md).
+For text workflows, `open_text_retriever(...)` already prefers the Mojo backend
+automatically when the active environment can actually run it.
 
-## Why The `BACKEND` Variable Matters
+## Make The Layout Explicit When You Care About It
 
-Installing Kayak in any environment where Mojo is already installed and
-discoverable makes the Mojo backend available. Pixi is one way to do that.
-UV works too. The requirement is a usable `mojo` CLI, not Pixi itself.
-
-Neither setup makes the low-level SDK silently switch defaults.
-
-If you use `open_text_retriever(...)`, that high-level workflow already prefers
-Mojo automatically when it is available.
-
-The `BACKEND` constant above is the recommended pattern when you want your own
-application code to behave as "use Mojo unless I override it."
-
-## A Slightly More Explicit 128-Dim Layout
-
-If you want the query and index layouts to be explicit too, convert them:
+If you want the query and index layouts to be part of the code you benchmark or
+profile, convert them explicitly:
 
 ```python
 flat_query = query.to_layout("flat_dim128")
@@ -100,12 +129,12 @@ scores = kayak.maxsim(
 )
 ```
 
-Use that form when you want to make the 128-dimensional flattened layout part
-of the code you reason about, benchmark, or profile.
+Use this form when you want the 128-dimensional flattened layout to be visible
+in your code and measurements.
 
-## Batch Search Against The Same Index
+## Batch Search On The Same Index
 
-If you have many queries for the same index, use the batch API:
+If many queries hit the same index, use the batch API:
 
 ```python
 batch = kayak.query_batch(
@@ -123,13 +152,14 @@ hits_by_query = kayak.search_batch(
 )
 ```
 
-That is one of the main reasons to install Mojo in the first place.
+That is one of the main reasons to install Mojo correctly in the first place.
 
-## Next Steps
+## Open The Next Page Based On What You Need
 
-- [Usage Patterns](usage-patterns.md) for the shortest map from task to API
-- [Text Encoders](text-encoders.md) for ColBERT-from-HF and bring-your-own-model usage
-- [real-usage-with-mojo.ipynb](notebooks/real-usage-with-mojo.ipynb) for a complete executed example
-- [Using the Mojo Backend](mojo-backend.md) for when to use each layout and API
-- [Late Interaction](concepts.md) for the scoring model and explicit vector budgets
-- [Search Plans](search-plans.md) for approximate stage 1 plus exact stage 2 pipelines
+| If you want to... | Open... |
+| --- | --- |
+| choose the long-term API shape | [Usage Patterns](usage-patterns.md) |
+| pass a Hugging Face ColBERT checkpoint or your own model | [Text Encoders](text-encoders.md) |
+| open a full executed walkthrough | [real-usage-with-mojo.ipynb](notebooks/real-usage-with-mojo.ipynb) |
+| understand the backend and layout surface | [Mojo Backend](mojo-backend.md) |
+| keep an existing database for storage | [Storage + Search](storage-and-search.md) |

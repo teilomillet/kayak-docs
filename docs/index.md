@@ -1,356 +1,205 @@
-# Kayak Python SDK
+---
+hide:
+  - toc
+---
 
 <div class="kayak-hero" markdown>
+<div class="kayak-hero__main" markdown>
 
-<p class="kayak-eyebrow">Late-interaction retrieval for Python</p>
+<p class="kayak-eyebrow">Kayak Documentation</p>
 
-# Kayak Python SDK
+# Late-interaction retrieval for Python, with a real Mojo-backed exact path
 
 <p class="kayak-lead">
-Use the Mojo backend when you want exact local late-interaction search, keep
-your current vector database when you need it, and keep the retrieval pipeline
-explicit enough to measure.
+Use Kayak when you want exact local late-interaction search, an explicit Python
+API, and a practical path to keep your existing vector database for storage
+while Kayak takes over search and surfacing.
 </p>
 
-[Start Here](start-here.md){ .md-button .md-button--primary }
-[Installation](installation.md){ .md-button }
-[Examples](examples.md){ .md-button }
+<div class="kayak-action-row" markdown>
+
+[Get started](installation.md){ .md-button .md-button--primary }
+[Choose a workflow](start-here.md){ .md-button }
+[Open examples](examples.md){ .md-button }
+
+</div>
 
 <div class="kayak-pill-row" markdown>
 
 - `Mojo exact CPU backend`
-- `ColBERT-style 128-d embeddings`
-- `Batch search on one loaded slice`
-- `Keep LanceDB / PgVector / Qdrant / Weaviate / Chroma`
+- `Text-to-search retriever APIs`
+- `Exact loaded-slice search`
+- `LanceDB / PgVector / Qdrant / Weaviate / Chroma`
 
 </div>
 
 </div>
+<aside class="kayak-hero__aside" markdown>
 
-Kayak is a local Python SDK for late-interaction retrieval.
+<ul class="kayak-stat-list">
+  <li>
+    <span class="kayak-stat-label">Best first step</span>
+    <span class="kayak-stat-value">Install Kayak in one environment where a usable <code>mojo</code> CLI is visible.</span>
+  </li>
+  <li>
+    <span class="kayak-stat-label">Default high-level API</span>
+    <span class="kayak-stat-value"><code>kayak.open_text_retriever(...)</code> for text workflows and repeated local search.</span>
+  </li>
+  <li>
+    <span class="kayak-stat-label">Database story</span>
+    <span class="kayak-stat-value">Keep the DB for persistence, let Kayak own the exact searchable slice.</span>
+  </li>
+</ul>
 
-It keeps the parts that matter explicit:
+</aside>
+</div>
+
+## Start With The Path That Matches Your Situation
+
+<p class="kayak-section-intro">
+The docs are organized for actual decisions, not for internal type names. Pick
+the entry point that matches what you already have.
+</p>
+
+<div class="kayak-card-grid" markdown>
+
+<section class="kayak-card kayak-card--accent" markdown>
+### I want one working Mojo setup
+
+Start here if your goal is simply to get a verified local install and run exact
+search from Python.
+
+[Installation](installation.md)
+[Quickstart](quickstart.md)
+</section>
+
+<section class="kayak-card" markdown>
+### I start from text
+
+Use the encoder plus retriever workflow when your corpus begins as raw text and
+you want one ergonomic Python object for ingest and search.
+
+[Text Encoders](text-encoders.md)
+[Usage Patterns](usage-patterns.md)
+</section>
+
+<section class="kayak-card" markdown>
+### I already have a vector database
+
+Keep the database for storage, filters, and operational ownership. Materialize
+an exact slice into Kayak and search that slice directly.
+
+[Storage + Search](storage-and-search.md)
+[Vector Databases](vector-databases.md)
+</section>
+
+<section class="kayak-card" markdown>
+### I care about throughput and repeated queries
+
+Use one loaded slice, batch search, and the hosted same-snapshot path when the
+data changes more slowly than the query traffic.
+
+[Usage Patterns](usage-patterns.md)
+[Hosted Engine Python](hosted-engine-python.md)
+</section>
+
+</div>
+
+## What Kayak Owns
+
+<p class="kayak-section-intro">
+Kayak is opinionated about the retrieval boundary. The API keeps the expensive
+and quality-critical parts explicit so you can measure them and change them on
+purpose.
+</p>
+
+<div class="kayak-card-grid" markdown>
+
+<section class="kayak-card" markdown>
+### Explicit search semantics
 
 - query vector count
 - document vector count
 - index layout
 - backend choice
 - candidate window size
+</section>
 
-That is the point of the SDK. You should be able to see what the retrieval
-pipeline is doing, measure it, and change it deliberately.
+<section class="kayak-card" markdown>
+### Reliable Python ergonomics
 
-If you are already inside Python and want the package to explain itself, call:
+- `kayak.help()` for discoverability
+- `kayak.doctor()` for environment diagnostics
+- retriever and session APIs for repeated-query workloads
+</section>
 
-```python
-import kayak
+<section class="kayak-card" markdown>
+### Storage handoff, not storage replacement
 
-print(kayak.help())
-print(kayak.help("search_text"))
-```
+- keep LanceDB, PgVector, Qdrant, Weaviate, or Chroma if you already use them
+- let Kayak materialize the exact slice
+- let Kayak run the search path you actually benchmark
+</section>
 
-The same interface descriptions are also available through normal Python
-introspection:
-
-```python
-import inspect
-import kayak
-
-print(inspect.signature(kayak.open_text_retriever))
-print(inspect.getdoc(kayak.open_text_retriever))
-```
+</div>
 
 <figure class="kayak-figure">
   <img src="assets/overview-flow.svg" alt="Overview of the public Kayak flow from text or vectors into exact search, with optional vector database storage and loaded-slice reuse.">
-  <figcaption>Public mental model: start from text or vectors, optionally keep the database for storage, then let Kayak own the exact search step.</figcaption>
+  <figcaption>Public mental model: text or vectors in, exact searchable slice out, optional database persistence on the side.</figcaption>
 </figure>
 
-<div class="grid cards" markdown>
+## Recommended Reading Order
 
-- __Choose your path first__
+<div class="kayak-card-grid" markdown>
 
-  Use this if you are still thinking in terms like "I have text", "I have a
-  vector DB", or "I need repeated-query speed" and do not want to translate
-  that into Kayak terms yet.
+<section class="kayak-card" markdown>
+### 1. Install correctly
 
-  [Open start-here guide](start-here.md)
+Make sure Kayak can discover a usable `mojo` CLI in the same environment as the
+Python package.
 
-- __Install and get one working Mojo setup__
+[Open installation guide](installation.md)
+</section>
 
-  Start here if your goal is simply "make `import kayak` use the Mojo backend
-  correctly."
+<section class="kayak-card" markdown>
+### 2. Run one exact search
 
-  [Open installation guide](installation.md)
+Use the shortest verified script or notebook before adding adapters or plans.
 
-- __Choose the right API shape__
+[Open quickstart](quickstart.md)
+</section>
 
-  Use this when you want to know whether you should open a retriever, load one
-  reusable index, call `search_batch(...)`, or move to a search plan.
+<section class="kayak-card" markdown>
+### 3. Choose the long-term API shape
 
-  [Open usage patterns](usage-patterns.md)
+Move to retrievers, loaded slices, batch search, or plans only after the base
+path is working.
 
-- __Start from text or your own model__
-
-  Use the built-in ColBERT encoder for ColBERT checkpoints, or wrap your own
-  model with the callable encoder.
-
-  [Open text encoders](text-encoders.md)
-
-- __Keep your existing database__
-
-  Use Kayak as the search engine while LanceDB, PgVector, Qdrant, Weaviate, or
-  Chroma stay responsible for persistence.
-
-  [Open storage and integrations](storage-and-search.md)
-
-- __Open a real executed example__
-
-  Use this when you want a notebook or script, not another conceptual page.
-
-  [Open examples](examples.md)
-
-- __Look up exact APIs__
-
-  Use this when you already know the path and just want the stable Python
-  surface.
-
-  [Open API reference](api.md)
+[Open usage patterns](usage-patterns.md)
+</section>
 
 </div>
 
-## Start From Your Situation
+## Open The Right Artifact
 
-=== "I Want One Working Search"
-
-    Start with:
-
-    - [Start Here](start-here.md)
-    - [Installation](installation.md)
-    - [Quickstart](quickstart.md)
-
-=== "I Start From Text"
-
-    Start with:
-
-    - [Start Here](start-here.md)
-    - [Text Encoders](text-encoders.md)
-    - [Usage Patterns](usage-patterns.md)
-
-=== "I Already Have A Vector Database"
-
-    Start with:
-
-    - [Start Here](start-here.md)
-    - [Storage + Search](storage-and-search.md)
-    - [Vector Databases](vector-databases.md)
-
-=== "I Need Throughput Or Concurrency"
-
-    Start with:
-
-    - [Usage Patterns](usage-patterns.md)
-    - [Using the Mojo Backend](mojo-backend.md)
-    - [Hosted Engine Python](hosted-engine-python.md) if your target is the hosted snapshot runtime
-
-## The Shortest Useful Journey
-
-<div class="grid cards" markdown>
-
-- __Install Mojo correctly__
-
-  Make sure Kayak can actually discover a usable `mojo` CLI.
-
-  [Open installation](installation.md)
-
-- __Run one exact search__
-
-  Use the shortest working ColBERT-style 128-d example.
-
-  [Open quickstart](quickstart.md)
-
-- __Choose the right API shape__
-
-  Move from one working search to the right long-term workflow.
-
-  [Open usage patterns](usage-patterns.md)
-
-</div>
-
-## The Main User Paths
-
-Most users fall into one of these shapes:
-
-| If you want to... | Start here |
+| If you want to... | Open... |
 | --- | --- |
-| choose by your current situation instead of by API name | [Start Here](start-here.md) |
-| get one Mojo-capable install working | [Installation](installation.md) |
-| run one local exact search quickly | [Quickstart](quickstart.md) |
-| choose between retriever, batch search, and plans | [Usage Patterns](usage-patterns.md) |
+| decide by your current situation | [Choose Your Path](start-here.md) |
+| install Kayak and make Mojo show up correctly | [Installation](installation.md) |
+| run the shortest possible exact search | [Quickstart](quickstart.md) |
 | pass a Hugging Face ColBERT checkpoint or your own model | [Text Encoders](text-encoders.md) |
-| keep your vector database and let Kayak search | [Storage + Search](storage-and-search.md) |
-| inspect adapter-specific facts and notebooks | [Vector Databases](vector-databases.md) |
-| serve many same-process callers on one fixed hosted snapshot | [Hosted Engine Python](hosted-engine-python.md) |
+| keep your existing vector database | [Storage + Search](storage-and-search.md) |
+| compare database-specific adapter behavior | [Vector Databases](vector-databases.md) |
+| open runnable notebooks and scripts | [Examples](examples.md) |
+| inspect the stable public signatures | [Python API](api.md) |
 
-## If You Want Mojo, Make Mojo Available
+## If You Want The Mojo Backend
 
-If your goal is to use the Mojo backend, do not stop at:
+`uv add kayak` installs the Python SDK. It does not install Mojo.
 
-```bash
-uv add kayak
-```
+If your goal is the Mojo exact backend, the requirement is simple and explicit:
+Kayak must be able to find a usable `mojo` CLI in the same environment, on
+`PATH`, or through `KAYAK_MOJO_CLI`.
 
-That installs the Python package, but not the Mojo CLI. In that setup Kayak
-will expose only the NumPy reference backend.
-
-The verified path for the Mojo backend is:
-
-1. Create or use any environment where Kayak can find a usable `mojo` CLI.
-2. Install `kayak` into that same environment.
-3. Use `kayak.open_text_retriever(...)` for the highest-level text workflow, or
-   pass `backend=kayak.MOJO_EXACT_CPU_BACKEND` on lower-level search calls.
-
-Any environment manager is fine as long as Kayak can find a usable `mojo` CLI.
-Pixi is one easy way to make that explicit in one project. UV works too if
-Mojo is already installed and discoverable through the active environment,
-`PATH`, or `KAYAK_MOJO_CLI`.
-
-Use the [installation guide](installation.md) for the exact workflow.
-
-!!! note "Short version"
-    `uv add kayak` installs the Python SDK. It does not install Mojo.
-    If you want the Mojo backend, make sure Kayak can discover a usable
-    `mojo` CLI in the same environment.
-
-## What The Mojo Backend Is For
-
-`kayak.MOJO_EXACT_CPU_BACKEND` is the exact CPU scorer for the Python SDK.
-
-Use it when you want:
-
-- exact local MaxSim scoring on ColBERT-style embeddings
-- exact top-k search from Python
-- exact reranking inside explicit search plans
-- repeated queries against the same index, including batch search
-
-Low-level search functions do not silently replace their default backend.
-Kayak keeps that choice explicit on purpose.
-
-The high-level `kayak.open_text_retriever(...)` workflow is the exception:
-it prefers Mojo automatically when the active environment can actually run the
-Mojo backend, and falls back to the NumPy reference backend otherwise.
-
-## Minimal Mojo Example
-
-The validated Mojo path is ColBERT-style 128-dimensional embeddings.
-
-```python
-import numpy as np
-import kayak
-
-
-def dim128(index: int) -> np.ndarray:
-    vector = np.zeros(128, dtype=np.float32)
-    vector[index] = 1.0
-    return vector
-
-
-backend = kayak.MOJO_EXACT_CPU_BACKEND
-
-query = kayak.query(np.stack([dim128(0), dim128(1)]))
-index = kayak.documents(
-    ["doc-a", "doc-b"],
-    [
-        np.stack([dim128(0), dim128(1)]),
-        np.stack([dim128(0), dim128(0)]),
-    ],
-).pack()
-
-hits = kayak.search(query, index, k=2, backend=backend)
-scores = kayak.maxsim(query, index, backend=backend)
-```
-
-The important pattern is the `backend` variable. That is how you make your own
-application code default to Mojo, even though the SDK itself does not switch
-defaults automatically.
-
-## Highest-Level Text Workflow
-
-If your inputs start as text, the simplest public SDK shape is now one
-retriever object that composes:
-
-- one text encoder
-- one late store
-- one backend default
-
-```python
-import kayak
-
-retriever = kayak.open_text_retriever(
-    encoder="colbert",
-    store="kayak",
-    encoder_kwargs={"model_name": "colbert-ir/colbertv2.0"},
-    store_kwargs={"path": "./kayak-index"},
-)
-
-retriever.upsert_texts(doc_ids, texts, metadata=metadata_rows)
-hits = retriever.search_text("install python and mojo together", k=10)
-```
-
-That is the recommended entry point when you want one Python object for text
-ingest plus search.
-
-If you are deciding which encoder to use:
-
-- use `"colbert"` when you have a ColBERT checkpoint on Hugging Face
-- use `"callable"` when you already have your own model methods
-
-The short guide is:
-
-- [Text Encoders](text-encoders.md)
-
-## Why Kayak Is Different
-
-Most vector search APIs hide the retrieval pipeline behind a single method call.
-Kayak does not.
-
-```python
-plan = kayak.document_proxy_search_plan(
-    final_k=10,
-    candidate_k=100,
-    query_vector_budget=32,
-    document_vector_budget=64,
-)
-
-result = kayak.search_with_plan(
-    query,
-    index,
-    plan,
-    backend=kayak.MOJO_EXACT_CPU_BACKEND,
-)
-
-result.hits
-result.candidate_stage.hits
-result.stage2_reference.query_vector_count
-result.stage2_reference.document_vector_count
-```
-
-That makes it practical to answer questions like:
-
-- How many query vectors did stage 2 really score?
-- How many document vectors did the candidate window force me to touch?
-- Did my approximate candidate generator preserve the exact top-k?
-
-## Read Next
-
-- [Start Here](start-here.md) for the user-situation switchboard
-- [Installation](installation.md) for the Mojo-capable install paths
-- [Quickstart](quickstart.md) for a working Mojo-first script
-- [Text Encoders](text-encoders.md) for ColBERT-from-HF and bring-your-own-model usage
-- [Examples](examples.md) for executed notebooks and small Python scripts
-- [Usage Patterns](usage-patterns.md) for which API to call for each task
-- [Storage + Search](storage-and-search.md) for the vector-db-as-storage, Kayak-as-search-engine deployment shape
-- [Hosted Engine Python](hosted-engine-python.md) for many same-process callers against one fixed hosted snapshot
-- [Using the Mojo Backend](mojo-backend.md) for how to make Mojo your normal code path
-- [Vector Database Integrations](vector-databases.md) for LanceDB, PgVector/Postgres, Qdrant, Weaviate, ChromaDB, and generic stage-1/stage-2 handoff patterns
-- [Late Interaction](concepts.md) for the scoring model and explicit vector budgets
-- [Search Plans](search-plans.md) for approximate stage 1 plus exact stage 2 pipelines
+Use the [installation guide](installation.md) for the verified setup shapes and
+the exact checks to run after install.
