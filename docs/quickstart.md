@@ -1,35 +1,6 @@
-<div class="kayak-hero kayak-hero--compact" markdown>
-<div class="kayak-hero__main" markdown>
+# Quickstart
 
-<p class="kayak-eyebrow">Shortest working example</p>
-
-# Run one exact search on the Mojo backend from Python
-
-<p class="kayak-lead">
-This is the shortest verified path once installation is correct. It uses
-ColBERT-style 128-dimensional vectors because that is the shape the Mojo exact
-path is designed for.
-</p>
-
-<div class="kayak-action-row" markdown>
-
-[Installation](installation.md){ .md-button .md-button--primary }
-[Usage Patterns](usage-patterns.md){ .md-button }
-[Open notebook](notebooks/real-usage-with-mojo.ipynb){ .md-button }
-
-</div>
-
-</div>
-<aside class="kayak-hero__aside" markdown>
-
-<ul class="kayak-link-list">
-  <li><strong>Inputs</strong> one query, one document set, 128-dimensional token vectors</li>
-  <li><strong>Core APIs</strong> <code>kayak.query(...)</code>, <code>kayak.documents(...).pack()</code>, <code>kayak.search(...)</code></li>
-  <li><strong>Backend</strong> pass <code>backend=kayak.MOJO_EXACT_CPU_BACKEND</code> explicitly on low-level calls</li>
-</ul>
-
-</aside>
-</div>
+The shortest verified path once installation is correct. Uses ColBERT-style 128-dimensional vectors — the shape the Mojo exact path is designed for.
 
 ## One File, Mojo First
 
@@ -63,36 +34,10 @@ print("hits:", [(hit.doc_id, hit.score) for hit in hits])
 print("scores:", scores.numpy().tolist())
 ```
 
-## What That Script Does
-
-<div class="kayak-card-grid" markdown>
-
-<section class="kayak-card" markdown>
-### 1. Build the query
-
-<code>kayak.query(...)</code> wraps one token matrix as a <code>LateQuery</code>.
-</section>
-
-<section class="kayak-card" markdown>
-### 2. Build the documents
-
-<code>kayak.documents(...)</code> collects aligned ids and token matrices.
-</section>
-
-<section class="kayak-card" markdown>
-### 3. Pack the index
-
-<code>.pack()</code> materializes the search-ready <code>LateIndex</code>.
-</section>
-
-<section class="kayak-card" markdown>
-### 4. Search explicitly
-
-<code>kayak.search(...)</code> and <code>kayak.maxsim(...)</code> run exact scoring on the selected
-backend.
-</section>
-
-</div>
+1. `kayak.query(...)` wraps one token matrix as a `LateQuery`.
+2. `kayak.documents(...)` collects aligned ids and token matrices.
+3. `.pack()` materializes the search-ready `LateIndex`.
+4. `kayak.search(...)` and `kayak.maxsim(...)` run exact scoring on the selected backend.
 
 ## If You Start From Text Instead Of Vectors
 

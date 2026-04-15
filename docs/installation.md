@@ -1,45 +1,6 @@
-<div class="kayak-hero kayak-hero--compact" markdown>
-<div class="kayak-hero__main" markdown>
+# Install Kayak
 
-<p class="kayak-eyebrow">Verified setup paths</p>
-
-# Install Kayak in the same environment as a usable `mojo` CLI
-
-<p class="kayak-lead">
-That is the real requirement. UV, pip, and Pixi can all work. The deciding
-factor is whether Kayak can actually discover a usable `mojo` command when your
-Python code runs.
-</p>
-
-<div class="kayak-action-row" markdown>
-
-[Quickstart](quickstart.md){ .md-button .md-button--primary }
-[Choose your path](start-here.md){ .md-button }
-
-</div>
-
-</div>
-<aside class="kayak-hero__aside" markdown>
-
-<ul class="kayak-stat-list">
-  <li>
-    <span class="kayak-stat-label">Python-only install</span>
-    <span class="kayak-stat-value"><code>numpy_reference</code> backend only</span>
-  </li>
-  <li>
-    <span class="kayak-stat-label">Mojo-capable install</span>
-    <span class="kayak-stat-value"><code>mojo_exact_cpu</code> is available and the high-level retriever prefers it automatically</span>
-  </li>
-  <li>
-    <span class="kayak-stat-label">Best verification command</span>
-    <span class="kayak-stat-value"><code>print(kayak.available_backends())</code> and <code>print(kayak.mojo_bridge_info())</code></span>
-  </li>
-</ul>
-
-</aside>
-</div>
-
-## Setup Outcomes At A Glance
+Install Kayak in the same environment as a usable `mojo` CLI. That is the real requirement. UV, pip, and Pixi can all work — the deciding factor is whether Kayak can actually discover a usable `mojo` command when your Python code runs.
 
 | Setup shape | Result |
 | --- | --- |
@@ -172,83 +133,17 @@ you only need Kayak to bind to that existing Mojo install.
 The core SDK does not require external database clients. Install only the
 adapter you actually plan to use.
 
-<div class="kayak-card-grid" markdown>
-
-<section class="kayak-card" markdown>
-### LanceDB
-
-```bash
-uv add lancedb pyarrow
-```
-
-or:
-
-```bash
-pixi add --pypi lancedb pyarrow
-```
-</section>
-
-<section class="kayak-card" markdown>
-### Qdrant
-
-```bash
-uv add qdrant-client
-```
-
-or:
-
-```bash
-pixi add --pypi qdrant-client
-```
-</section>
-
-<section class="kayak-card" markdown>
-### Weaviate
-
-```bash
-uv add weaviate-client
-```
-
-or:
-
-```bash
-pixi add --pypi weaviate-client
-```
-</section>
-
-<section class="kayak-card" markdown>
-### Chroma
-
-```bash
-uv add chromadb
-```
-
-or:
-
-```bash
-pixi add --pypi chromadb
-```
-</section>
-
-<section class="kayak-card" markdown>
-### PgVector
-
-```bash
-uv add "psycopg[binary]" pgvector
-```
-
-or:
-
-```bash
-pixi add --pypi "psycopg[binary]" pgvector
-```
-</section>
-
-</div>
+| Adapter | Install |
+| --- | --- |
+| LanceDB | `uv add lancedb pyarrow` or `pixi add --pypi lancedb pyarrow` |
+| Qdrant | `uv add qdrant-client` or `pixi add --pypi qdrant-client` |
+| Weaviate | `uv add weaviate-client` or `pixi add --pypi weaviate-client` |
+| Chroma | `uv add chromadb` or `pixi add --pypi chromadb` |
+| PgVector | `uv add "psycopg[binary]" pgvector` or `pixi add --pypi "psycopg[binary]" pgvector` |
 
 ## What Not To Assume
 
-If your intent is “I want the Mojo backend,” do not stop at:
+If your intent is "I want the Mojo backend," do not stop at:
 
 ```bash
 uv add kayak
