@@ -268,7 +268,7 @@ The verified reusable path is:
 
 If you need one explicit same-process multi-caller surface around a fixed
 hosted snapshot, use `import kayak_engine` and
-`prepare_exact_search_scheduler(...)`.
+`prepare_exact_search_runtime(...)`.
 
 ### `LateQuery.to_layout(layout)`
 

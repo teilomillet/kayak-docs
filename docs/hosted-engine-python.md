@@ -13,7 +13,7 @@ Use this page when:
 - your data already lives in a hosted-engine service root
 - one published snapshot stays fixed across many searches
 - you want to reuse that snapshot from Python instead of reloading it per query
-- you want one explicit local scheduler for many same-process callers
+- you want one explicit local runtime for many same-process callers
 
 ## One Pinned Snapshot
 
@@ -66,29 +66,29 @@ response = session.search(request, scoring=scoring)
 
 ## Many Same-Process Callers
 
-Use `prepare_exact_search_scheduler(...)` when many callers in the same Python
+Use `prepare_exact_search_runtime(...)` when many callers in the same Python
 process need one shared same-snapshot exact-search surface.
 
 ```python
 from kayak_engine import (
-    PreparedExactSearchSchedulerConfig,
-    prepare_exact_search_scheduler,
+    PreparedExactSearchRuntimeConfig,
+    prepare_exact_search_runtime,
 )
 
-scheduler = prepare_exact_search_scheduler(
+runtime = prepare_exact_search_runtime(
     service_root="./.state/kayak-engine",
     collection_id="news",
     tenant_id="tenant-a",
     namespace_id="search",
     snapshot_id="snapshot-0001",
-    config=PreparedExactSearchSchedulerConfig(
+    config=PreparedExactSearchRuntimeConfig(
         worker_count=4,
         max_batch_size=32,
         max_batch_wait_ms=2,
     ),
 )
 
-response = scheduler.search(
+response = runtime.search(
     {
         "query_model_name": "colbertv2",
         "query": [[1.0, 0.0], [0.0, 1.0]],
@@ -97,12 +97,24 @@ response = scheduler.search(
 )
 ```
 
-The scheduler keeps policy explicit through:
+The runtime keeps policy explicit through:
 
+- `execution_backend`
 - `worker_count`
 - `max_batch_size`
 - `max_batch_wait_ms`
 - `scoring`
+
+Current verified backend support:
+
+- only `execution_backend="process"` is supported today
+
+Reason:
+
+- the runtime contract should stay stable even if the execution mechanism
+  changes later
+- the threaded Python-to-Mojo exact-search path was not stable in current local
+  evidence
 
 Use:
 
@@ -116,14 +128,14 @@ Use `submit(...)` when the caller wants a future immediately and plans to wait
 later.
 
 ```python
-future_a = scheduler.submit(request_a)
-future_b = scheduler.submit(request_b)
+future_a = runtime.submit(request_a)
+future_b = runtime.submit(request_b)
 
 response_a = future_a.result()
 response_b = future_b.result()
 ```
 
-The scheduler coalesces near-simultaneous requests into explicit batches inside
+The runtime coalesces near-simultaneous requests into explicit batches inside
 one local worker process.
 
 That process boundary is deliberate.
@@ -132,16 +144,16 @@ Reason:
 
 - the verified threaded Python-to-Mojo exact-search path was not stable in the
   current environment
-- the process-backed scheduler preserves the same explicit Python contract while
+- the process-backed runtime preserves the same explicit Python contract while
   keeping the actual Mojo execution on a worker-process main thread
 
 ## Stats
 
-Use `scheduler.stats()` when you want to inspect what the scheduler is actually
+Use `runtime.stats()` when you want to inspect what the runtime is actually
 doing.
 
 ```python
-stats = scheduler.stats()
+stats = runtime.stats()
 
 print(stats.executed_batch_count)
 print(stats.average_batch_size)
@@ -161,24 +173,32 @@ Current stats include:
 - total queue wait time
 - total batch execution time
 
-## Close The Scheduler
+## Close The Runtime
 
-The scheduler owns a worker process, so close it explicitly when you are done.
+The runtime owns a worker process, so close it explicitly when you are done.
 
 ```python
-with prepare_exact_search_scheduler(...) as scheduler:
-    response = scheduler.search(request)
+with prepare_exact_search_runtime(...) as runtime:
+    response = runtime.search(request)
 ```
 
 Or:
 
 ```python
-scheduler = prepare_exact_search_scheduler(...)
+runtime = prepare_exact_search_runtime(...)
 try:
-    response = scheduler.search(request)
+    response = runtime.search(request)
 finally:
-    scheduler.close()
+    runtime.close()
 ```
+
+Compatibility note:
+
+- `PreparedExactSearchSchedulerConfig`
+- `PreparedExactSearchScheduler`
+- `prepare_exact_search_scheduler(...)`
+
+still exist as aliases for earlier code, but `runtime` is the canonical naming.
 
 ## What This Is Not
 
@@ -193,6 +213,8 @@ It also does **not** mean the hosted HTTP server is now concurrent.
 Current boundary:
 
 - `kayak_engine.prepare_exact_search_session(...)` is the local pinned-snapshot path
-- `kayak_engine.prepare_exact_search_scheduler(...)` is the local same-process
-  multi-caller path
+- `kayak_engine.prepare_exact_search_runtime(...)` is the canonical local
+  same-process multi-caller path
+- `kayak_engine.prepare_exact_search_scheduler(...)` remains a compatibility
+  alias
 - `python -m kayak_engine.server ...` is still the current hosted HTTP transport

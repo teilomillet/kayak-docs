@@ -215,17 +215,17 @@ callers in one Python process need the same pinned snapshot.
 
 ```python
 from kayak_engine import (
-    PreparedExactSearchSchedulerConfig,
-    prepare_exact_search_scheduler,
+    PreparedExactSearchRuntimeConfig,
+    prepare_exact_search_runtime,
 )
 
-scheduler = prepare_exact_search_scheduler(
+runtime = prepare_exact_search_runtime(
     service_root="./.state/kayak-engine",
     collection_id="news",
     tenant_id="tenant-a",
     namespace_id="search",
     snapshot_id="snapshot-0001",
-    config=PreparedExactSearchSchedulerConfig(
+    config=PreparedExactSearchRuntimeConfig(
         worker_count=4,
         max_batch_size=32,
         max_batch_wait_ms=2,
@@ -236,8 +236,9 @@ scheduler = prepare_exact_search_scheduler(
 Use:
 
 - `kayak.search_batch(...)` when you already loaded one local `LateIndex`
-- `kayak_engine.prepare_exact_search_scheduler(...)` when many callers share one fixed hosted snapshot
-- [Hosted Engine Python](hosted-engine-python.md) for the full scheduler contract
+- `kayak_engine.prepare_exact_search_runtime(...)` when many callers share one fixed hosted snapshot
+- `kayak_engine.prepare_exact_search_scheduler(...)` only as a compatibility alias
+- [Hosted Engine Python](hosted-engine-python.md) for the full runtime contract
 
 ## Clause-Text Verification
 
