@@ -41,6 +41,36 @@ Built-in kinds:
 - `"kayak"` and `"directory"`
 - `"lancedb"`
 
+### `kayak.open_text_retriever(...)`
+
+Open one high-level text retriever that composes:
+
+- one encoder
+- one store
+- one default backend
+
+```python
+retriever = kayak.open_text_retriever(
+    encoder="callable",
+    store="memory",
+    encoder_kwargs={
+        "query_encoder": my_query_encoder,
+        "document_encoder": my_document_encoder,
+    },
+)
+```
+
+The `encoder` and `store` arguments can be either:
+
+- a registered factory kind like `"colbert"` or `"kayak"`
+- an already-constructed encoder or store object
+
+Backend policy for this high-level constructor:
+
+- prefers `kayak.MOJO_EXACT_CPU_BACKEND` when Mojo is available in the active environment
+- falls back to `kayak.NUMPY_REFERENCE_BACKEND` otherwise
+- accepts `backend=...` when you want to override the default explicitly
+
 ### `kayak.query(token_vectors, *, text=None)`
 
 Build a `LateQuery` from a 2D token-vector matrix.
@@ -143,6 +173,22 @@ Persist documents in LanceDB row storage and materialize `LateIndex` objects fro
 ### `kayak.register_store(kind, factory, *, replace=False)`
 
 Register a custom store factory behind `open_store(...)`.
+
+## Text Retrievers
+
+### `kayak.LateTextRetriever`
+
+High-level workflow object for text ingest plus search.
+
+Important methods:
+
+- `upsert_texts(doc_ids, texts, metadata=None)`
+- `delete(doc_ids)`
+- `load_index(...)`
+- `search_text(...)`
+- `search_query(...)`
+- `search_text_with_plan(...)`
+- `search_query_with_plan(...)`
 
 ### `LateQuery.to_layout(layout)`
 

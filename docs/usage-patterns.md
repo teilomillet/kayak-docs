@@ -15,6 +15,32 @@ If you already have a vector database and want Kayak to own retrieval, see:
 
 - [Storage + Search](storage-and-search.md)
 
+## Text Ingest Plus Search
+
+Use this when your application starts from text and you want one SDK object for
+ingest plus retrieval.
+
+```python
+import kayak
+
+retriever = kayak.open_text_retriever(
+    encoder="colbert",
+    store="kayak",
+    encoder_kwargs={"model_name": "colbert-ir/colbertv2.0"},
+    store_kwargs={"path": "./kayak-index"},
+)
+
+retriever.upsert_texts(doc_ids, texts, metadata=metadata_rows)
+hits = retriever.search_text(query_text, k=5, where={"tenant": "acme"})
+```
+
+Use:
+
+- `kayak.open_text_retriever(...)` for one high-level text workflow object
+- `retriever.upsert_texts(...)` when the source corpus starts as raw text
+- `retriever.search_text(...)` when you want the retriever to encode the query and load the store slice
+- omit `backend=...` if you want this high-level workflow to prefer Mojo automatically when available
+
 ## Exact Search For One Query
 
 Use this when you already have one query embedding and one packed index.
@@ -214,6 +240,7 @@ print(kayak.backend_info(kayak.MOJO_EXACT_CPU_BACKEND))
 
 | Task | API |
 | --- | --- |
+| Text ingest plus text search | `kayak.open_text_retriever(...)` |
 | One query, top-k hits | `kayak.search(...)` |
 | One query, all exact scores | `kayak.maxsim(...)` |
 | Many queries, top-k hits | `kayak.search_batch(...)` |

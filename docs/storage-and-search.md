@@ -19,6 +19,22 @@ Use full Kayak retrieval when the searchable slice:
 That is usually the simplest production shape:
 
 ```python
+import kayak
+
+retriever = kayak.open_text_retriever(
+    encoder="colbert",
+    store="kayak",
+    encoder_kwargs={"model_name": "colbert-ir/colbertv2.0"},
+    store_kwargs={"path": "./kayak-index"},
+)
+
+retriever.upsert_texts(doc_ids, texts, metadata=metadata_rows)
+hits = retriever.search_text(query_text, k=10, where={"tenant": "acme"})
+```
+
+If you already own vectors rather than text, the equivalent lower-level shape is:
+
+```python
 import numpy as np
 import kayak
 
@@ -40,6 +56,16 @@ In this shape:
 
 - the database is the durable store
 - Kayak is the search engine
+
+The retriever path is the default recommendation when:
+
+- your application starts from text
+- you want one injectable SDK object instead of manual encoder/store wiring
+- you still want explicit backend and store choices when you need to override them
+
+`open_text_retriever(...)` prefers Mojo automatically when the active
+environment exposes the Mojo backend. Pass `backend=...` only when you want
+to force a different backend choice.
 
 ## Public Store Adapter For LanceDB
 

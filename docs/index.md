@@ -28,7 +28,8 @@ The verified path for the Mojo backend is:
 
 1. Create or use a Pixi environment that includes Mojo.
 2. Install `kayak` into that same environment.
-3. Pass `backend=kayak.MOJO_EXACT_CPU_BACKEND` on the calls you want on Mojo.
+3. Use `kayak.open_text_retriever(...)` for the highest-level text workflow, or
+   pass `backend=kayak.MOJO_EXACT_CPU_BACKEND` on lower-level search calls.
 
 Use the [installation guide](installation.md) for the exact workflow.
 
@@ -43,8 +44,12 @@ Use it when you want:
 - exact reranking inside explicit search plans
 - repeated queries against the same index, including batch search
 
-It does not silently replace the default backend. Kayak keeps backend choice
-explicit on purpose.
+Low-level search functions do not silently replace their default backend.
+Kayak keeps that choice explicit on purpose.
+
+The high-level `kayak.open_text_retriever(...)` workflow is the exception:
+it prefers Mojo automatically when the active environment can actually run the
+Mojo backend, and falls back to the NumPy reference backend otherwise.
 
 ## Minimal Mojo Example
 
@@ -79,6 +84,32 @@ scores = kayak.maxsim(query, index, backend=backend)
 The important pattern is the `backend` variable. That is how you make your own
 application code default to Mojo, even though the SDK itself does not switch
 defaults automatically.
+
+## Highest-Level Text Workflow
+
+If your inputs start as text, the simplest public SDK shape is now one
+retriever object that composes:
+
+- one text encoder
+- one late store
+- one backend default
+
+```python
+import kayak
+
+retriever = kayak.open_text_retriever(
+    encoder="colbert",
+    store="kayak",
+    encoder_kwargs={"model_name": "colbert-ir/colbertv2.0"},
+    store_kwargs={"path": "./kayak-index"},
+)
+
+retriever.upsert_texts(doc_ids, texts, metadata=metadata_rows)
+hits = retriever.search_text("install python and mojo together", k=10)
+```
+
+That is the recommended entry point when you want one Python object for text
+ingest plus search.
 
 ## Why Kayak Is Different
 
