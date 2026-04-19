@@ -1,592 +1,249 @@
-# API Reference
+# Python API
 
-All public exports come from:
+All stable SDK imports come from:
 
 ```python
 import kayak
 ```
 
-This page focuses on the stable Python surface and the backend contract.
+This page covers the public Python SDK only.
 
-Hosted-engine Python note:
+## Start here
 
-- this API page covers `import kayak`
-- the hosted-engine Python surface lives under `import kayak_engine`
-- for pinned hosted snapshots and the local exact-search scheduler, see
-  [Hosted Engine Python](hosted-engine-python.md)
+| If you want to... | Use... |
+| --- | --- |
+| ingest text and search with one object | `kayak.open_text_retriever(...)` |
+| choose an encoder explicitly | `kayak.open_encoder(...)` |
+| keep your current database for persistence | `kayak.open_store(...)` |
+| search from precomputed token vectors | `kayak.query(...)`, `kayak.documents(...).pack()`, `kayak.search(...)` |
+| run many queries against one loaded index | `kayak.query_batch(...)`, `kayak.search_batch(...)` |
+| inspect candidate stages and reranking | `kayak.document_proxy_search_plan(...)`, `kayak.search_with_plan(...)` |
+| inspect backend availability | `kayak.available_backends()`, `kayak.backend_info(...)` |
+| inspect install and runtime diagnostics | `kayak.doctor()` |
 
-## Choose The API Section
+## Recommendation First
 
-=== "I Need The Main Entry Point"
+Recommended public usage:
 
-    Start with:
+- simplest text path: `kayak.open_text_retriever(...)`
+- simplest vector path: `kayak.query(...)` + `kayak.documents(...).pack()`
+- fastest repeated-query public path: reuse one `LateIndex` and call `kayak.search_batch(...)`
+- lowest-level exact top-k fast path today: `kayak.search(...)` or `kayak.search_batch(...)` with `backend=kayak.MOJO_EXACT_CPU_BACKEND` when that backend is available
 
-    - `kayak.open_text_retriever(...)` for one high-level text workflow
-    - `kayak.open_encoder(...)` if you need encoder control
-    - `kayak.open_store(...)` if you need persistence control
+Current fast-path conditions in the SDK:
 
-=== "I Already Have Vectors"
+- packed index layout
+- nested query layout
+- explicit Mojo exact CPU backend selection
 
-    Start with:
+Those are execution details. They are not a reason to expose backend-specific application primitives to ordinary SDK users.
 
-    - `kayak.query(...)`
-    - `kayak.documents(...).pack()`
-    - `kayak.search(...)`
-    - `kayak.search_batch(...)`
+## Factories And Discovery
 
-=== "I Need A Database Adapter"
+### `kayak.open_text_retriever(...)`
 
-    Jump to:
-
-    - [Stores](#stores)
-    - [Storage + Search](storage-and-search.md)
-    - [Vector Databases](vector-databases.md)
-
-=== "I Need Plans Or Candidate Stages"
-
-    Jump to:
-
-    - [Candidate Generation And Plans](#candidate-generation-and-plans)
-    - [Search Plans](search-plans.md)
-
-=== "I Need Hosted Snapshot Reuse"
-
-    This is the wrong page.
-
-    Use:
-
-    - [Hosted Engine Python](hosted-engine-python.md)
-
-## Common Calls Cheat Sheet
-
-| If you want to... | Use... | Read... |
-| --- | --- | --- |
-| ingest text and search with one object | `kayak.open_text_retriever(...)` | [Usage Patterns](usage-patterns.md) |
-| encode with a ColBERT checkpoint from Hugging Face | `kayak.open_encoder("colbert", model_name="...")` | [Text Encoders](text-encoders.md) |
-| wrap your own token-level model methods | `kayak.open_encoder("callable", ...)` | [Text Encoders](text-encoders.md) |
-| run one exact search from vectors | `kayak.query(...)` + `kayak.documents(...).pack()` + `kayak.search(...)` | [Quickstart](quickstart.md) |
-| get the full score vector instead of only top-k | `kayak.maxsim(...)` | [Usage Patterns](usage-patterns.md) |
-| run many queries against one fixed index | `kayak.query_batch(...)` + `kayak.search_batch(...)` | [Usage Patterns](usage-patterns.md) |
-| keep an existing vector database for storage | `kayak.open_store(...)` + `store.load_index(...)` | [Storage + Search](storage-and-search.md) |
-| run a stage-1 candidate step plus exact rerank | `kayak.document_proxy_search_plan(...)` + `kayak.search_with_plan(...)` | [Search Plans](search-plans.md) |
-| check whether Mojo is actually available | `kayak.available_backends()` + `kayak.backend_info(...)` | [Using the Mojo Backend](mojo-backend.md) |
-| inspect the Python-to-Mojo bridge directly | `kayak.mojo_bridge_info()` | [Installation](installation.md) |
-| get generated terminal help from the public API itself | `kayak.help(...)` | [Installation](installation.md) |
-| look up one retriever method from the REPL | `kayak.help("search_text")` | [Usage Patterns](usage-patterns.md) |
-| use normal Python hover/help in an editor or notebook | `inspect.getdoc(...)` and `inspect.signature(...)` | [Installation](installation.md) |
-
-## Constructors
+High-level text workflow. It composes one encoder, one store, and one default backend.
 
 ### `kayak.open_encoder(kind, **kwargs)`
 
-Open a public text encoder from the stable factory.
-
-```python
-encoder = kayak.open_encoder(
-    "callable",
-    query_encoder=my_query_encoder,
-    document_encoder=my_document_encoder,
-)
-```
+Open a public encoder factory.
 
 Built-in kinds:
 
 - `"callable"`
 - `"colbert"`
 
-Use:
+Discovery and extension helpers:
 
-- `"colbert"` when the model is a ColBERT checkpoint and `model_name` is the
-  Hugging Face repo id
-- `"callable"` when you already have query/document methods that emit token
-  vectors
+- `kayak.available_encoder_kinds()`
+- `kayak.register_encoder(kind, factory, *, replace=False)`
+- `kayak.DEFAULT_COLBERT_MODEL_NAME`
 
 ### `kayak.open_store(kind, **kwargs)`
 
-Open a public persistence adapter from the stable factory.
-
-```python
-store = kayak.open_store("kayak", path="./kayak-index")
-```
+Open a public persistence adapter.
 
 Built-in kinds:
 
 - `"memory"`
 - `"kayak"` and `"directory"`
-- `"lancedb"`
-- `"pgvector"` with aliases `"postgres"` and `"postgresql"`
+- `"lancedb"` and `"lance"`
+- `"pgvector"`, `"postgres"`, and `"postgresql"`
 - `"qdrant"`
 - `"weaviate"`
 - `"chromadb"` and `"chroma"`
 
-### `kayak.open_text_retriever(...)`
+Discovery and extension helpers:
 
-Open one high-level text retriever that composes:
+- `kayak.available_store_kinds()`
+- `kayak.register_store(kind, factory, *, replace=False)`
 
-- one encoder
-- one store
-- one default backend
+## Core Data Objects
 
-```python
-retriever = kayak.open_text_retriever(
-    encoder="callable",
-    store="memory",
-    encoder_kwargs={
-        "query_encoder": my_query_encoder,
-        "document_encoder": my_document_encoder,
-    },
-)
-```
+| Export | Purpose |
+| --- | --- |
+| `LateQuery` | one token-level query matrix |
+| `LateQueryBatch` | many queries with explicit ragged vector counts |
+| `LateDocuments` | document ids plus token matrices, optionally texts |
+| `LateIndex` | searchable packed or layout-converted index |
+| `LateScores` | full score vector output from `maxsim(...)` |
+| `SearchHit` | one ranked hit |
+| `LateTextRetriever` | high-level text ingest and search workflow |
+| `LateTextSearchSession` | one reusable loaded slice plus repeated query entrypoints |
+| `LateStore` | store protocol |
+| `LateStoreStats` | measurable store state |
+| `StoreCapabilities` | store capability flags |
+| `LateTextEncoder` | encoder protocol |
 
-The `encoder` and `store` arguments can be either:
+Common constructors:
 
-- a registered factory kind like `"colbert"` or `"kayak"`
-- an already-constructed encoder or store object
+- `kayak.query(token_vectors, *, text=None)`
+- `kayak.query_batch(token_vectors)`
+- `kayak.documents(doc_ids, token_vectors, *, texts=None)`
+- `LateDocuments.pack()`
+- `LateQuery.to_layout(...)`
+- `LateIndex.to_layout(...)`
 
-Backend policy for this high-level constructor:
+Low-level layout constructors:
 
-- prefers `kayak.MOJO_EXACT_CPU_BACKEND` when Mojo is available in the active environment
-- falls back to `kayak.NUMPY_REFERENCE_BACKEND` otherwise
-- accepts `backend=...` when you want to override the default explicitly
+- `kayak.packed_index(...)`
+- `kayak.flat_query_dim128(...)`
+- `kayak.hybrid_flat_dim128_index(...)`
 
-### `kayak.query(token_vectors, *, text=None)`
+## Search And Scoring
 
-Build a `LateQuery` from a 2D token-vector matrix.
+| Export | Purpose |
+| --- | --- |
+| `kayak.maxsim(...)` | full exact score vector for one query |
+| `kayak.maxsim_batch(...)` | full exact score vectors for many queries |
+| `kayak.search(...)` | top-k exact hits for one query |
+| `kayak.search_batch(...)` | top-k exact hits for many queries |
+| `kayak.generate_candidates(...)` | run only the candidate stage from a plan |
+| `kayak.search_with_plan(...)` | execute explicit multi-stage search |
 
-Accepted inputs are objects that can be converted to a 2D array-like matrix,
-including NumPy arrays and torch tensors.
+Default rule:
 
-```python
-query = kayak.query(vectors)
-query_with_text = kayak.query(vectors, text="founded in 1984 in a church")
-```
+- use `search(...)` or `search_batch(...)` when you want ranked hits
+- use `maxsim(...)` or `maxsim_batch(...)` only when you need the full score vector
 
-### `kayak.query_batch(token_vectors)`
+## Plans, Candidate Stages, And Verifiers
 
-Build a `LateQueryBatch` from a sequence of query matrices.
+Main plan builders:
 
-Each query can have a different number of vectors. All queries must share the
-same vector dimension.
+- `kayak.exact_full_scan_search_plan(...)`
+- `kayak.exact_full_scan_clause_text_search_plan(...)`
+- `kayak.document_proxy_search_plan(...)`
 
-```python
-batch = kayak.query_batch([query_a_vectors, query_b_vectors])
-```
+Main stage components:
 
-### `kayak.documents(doc_ids, token_vectors, *, texts=None)`
+- `kayak.exact_full_scan_candidate_generator()`
+- `kayak.document_proxy_candidate_generator()`
+- `kayak.noop_topk_stage2_reference_operator()`
+- `kayak.exact_late_interaction_stage2_reference_operator()`
+- `kayak.none_stage3_verifier_operator()`
+- `kayak.clause_text_stage3_verifier_operator()`
 
-Build `LateDocuments` from:
+Main plan result objects:
 
-- document ids
-- one token-vector matrix per document
-- optional document texts
+- `CandidateGenerator`
+- `CandidateStageResult`
+- `SearchPlan`
+- `SearchPlanResult`
+- `SearchStageProfile`
+- `Stage2ReferenceOperator`
+- `Stage3VerifierOperator`
+- `StageArtifactMaterialization`
+- `ReferenceScoringSemantics`
+- `kayak.exact_late_interaction_reference_scoring_semantics()`
 
-```python
-documents = kayak.documents(
-    ["doc-a", "doc-b"],
-    [doc_a_vectors, doc_b_vectors],
-    texts=["text a", "text b"],
-)
-```
+Use [Search Plans](search-plans.md) for examples and tradeoffs.
 
-## Layout Constructors
+## Encoders
 
-These are direct constructors for already-materialized layouts.
+Built-in public encoder classes:
 
-### `kayak.packed_index(doc_ids, doc_offsets, token_vectors, *, doc_texts=None)`
+- `kayak.CallableLateTextEncoder(query_encoder, document_encoder)`
+- `kayak.ColBERTTextEncoder(model_name='colbert-ir/colbertv2.0', *, checkpoint=None, gpus=0)`
 
-Build a `LateIndex` directly in packed layout.
-
-Use this only when you already own packed storage fields.
-
-### `kayak.hybrid_flat_dim128_index(doc_ids, doc_offsets, token_values, *, doc_texts=None)`
-
-Build a `LateIndex` directly in `hybrid_flat_dim128` layout.
-
-Requires a 128-dimensional flattened token-value buffer.
-
-### `kayak.flat_query_dim128(token_values, *, text=None)`
-
-Build a `LateQuery` directly in `flat_dim128` layout from flat values.
-
-Requires 128-dimensional vectors.
-
-## Object Methods
-
-### `LateDocuments.pack()`
-
-Pack `LateDocuments` into a searchable `LateIndex`.
-
-```python
-index = documents.pack()
-```
-
-## Text Encoders
-
-### `kayak.CallableLateTextEncoder(query_encoder, document_encoder)`
-
-Wrap user-provided Python callables behind Kayak's text encoder contract.
-
-Those callables can come from plain functions or bound model methods.
-They are called one text at a time by the public SDK surface.
-
-### `kayak.ColBERTTextEncoder(model_name='colbert-ir/colbertv2.0', *, checkpoint=None, gpus=0)`
-
-Encode text with a ColBERT checkpoint into `LateQuery` and `LateDocuments`.
-
-`model_name` is the Hugging Face repo id for the ColBERT checkpoint.
-The public encoder path encodes one query or document text at a time.
-
-### `kayak.register_encoder(kind, factory, *, replace=False)`
-
-Register a custom encoder factory behind `open_encoder(...)`.
+Use [Text Encoders](text-encoders.md) when you need the constructor details.
 
 ## Stores
 
-All public stores support:
+Built-in public store classes:
 
-- `close()`
-- `with ... as store:`
-- `load_index(...)` to materialize one exact `LateIndex`
+- `kayak.MemoryLateStore()`
+- `kayak.DirectoryLateStore(path)`
+- `kayak.LanceDBLateStore(path, *, table_name='late_documents')`
+- `kayak.PgVectorLateStore(dsn=None, *, connection=None, table_name='late_documents', schema_name='public')`
+- `kayak.QdrantLateStore(path=None, *, client=None, collection_name='late_documents')`
+- `kayak.WeaviateLateStore(persistence_path=None, *, client=None, collection_name='LateDocument', vector_name='colbert', environment_variables=None)`
+- `kayak.ChromaLateStore(path=None, *, client=None, collection_name='late_documents')`
 
-### `kayak.MemoryLateStore()`
+Use [Storage + Search](storage-and-search.md) and [Vector Databases](vector-databases.md) for adapter-specific behavior.
 
-Keep late-interaction documents in memory and materialize `LateIndex` objects on demand.
+## Backends And Diagnostics
 
-### `kayak.DirectoryLateStore(path)`
+Backend constants:
 
-Persist one local packed Kayak snapshot on disk and materialize it back into `LateIndex`.
+- `kayak.NUMPY_REFERENCE_BACKEND`
+- `kayak.MOJO_EXACT_CPU_BACKEND`
 
-### `kayak.LanceDBLateStore(path, *, table_name='late_documents')`
+Backend inspection:
 
-Persist documents in LanceDB row storage and materialize `LateIndex` objects from the table.
-
-`where=` is applied exactly, but after Arrow materialization in the current public adapter.
-
-### `kayak.PgVectorLateStore(dsn=None, *, connection=None, table_name='late_documents', schema_name='public', ensure_extension=True)`
-
-Persist documents in Postgres with the `pgvector` extension and materialize
-exact `LateIndex` objects from stored rows.
-
-`dsn` and `connection` are mutually exclusive. Simple scalar `where=` filters
-are pushed into Postgres through JSONB containment before load, and Kayak still
-applies the exact filter after fetch.
-
-### `kayak.QdrantLateStore(path=None, *, client=None, collection_name='late_documents')`
-
-Persist documents in a Qdrant collection with native multivectors and materialize
-`LateIndex` objects from stored rows.
-
-Simple scalar `where=` filters are pushed into Qdrant before load.
-
-### `kayak.WeaviateLateStore(persistence_path=None, *, client=None, collection_name='LateDocument', vector_name='colbert', environment_variables=None)`
-
-Persist documents in a Weaviate collection with a named self-provided multivector
-and materialize `LateIndex` objects from stored rows.
-
-`where=` is applied exactly, but after collection iteration in the current public adapter.
-
-### `kayak.ChromaLateStore(path=None, *, client=None, collection_name='late_documents')`
-
-Persist documents in a Chroma collection and materialize exact `LateIndex`
-objects from stored rows.
-
-The adapter stores one pooled dense vector per document in Chroma plus the exact
-token matrix in metadata so Kayak can reconstruct the exact index.
-
-### `kayak.register_store(kind, factory, *, replace=False)`
-
-Register a custom store factory behind `open_store(...)`.
-
-## Text Retrievers
-
-### `kayak.LateTextRetriever`
-
-High-level workflow object for text ingest plus search.
-
-Important methods:
-
-- `upsert_texts(doc_ids, texts, metadata=None)`
-- `delete(doc_ids)`
-- `close()`
-- `load_index(...)`
-- `search_text(...)`
-- `search_query(...)`
-- `search_text_batch(...)`
-- `search_query_batch(...)`
-- `search_text_with_plan(...)`
-- `search_query_with_plan(...)`
-
-`load_index(...)` is the reusable exact slice. Use it when the store stays fixed
-and the queries are the thing changing.
-
-The public retriever/store contract does not currently promise generic
-thread-safe concurrent use of the same store instance across all adapters.
-The verified reusable path is:
-
-- call `load_index(...)` once
-- reuse that `LateIndex` with `search(...)` or `search_batch(...)`
-
-If you need one explicit same-process multi-caller surface around a fixed
-hosted snapshot, use `import kayak_engine` and
-`prepare_exact_search_runtime(...)`.
-
-### `LateQuery.to_layout(layout)`
-
-Convert a query between:
-
-- `"nested"`
-- `"flat_dim128"`
-
-`"flat_dim128"` requires `vector_dim == 128`.
-
-### `LateIndex.to_layout(layout)`
-
-Convert an index between:
-
-- `"packed"`
-- `"hybrid_flat_dim128"`
-
-`"hybrid_flat_dim128"` requires `vector_dim == 128`.
-
-### `LateIndex.select(doc_ids)`
-
-Select a subset of documents and return a new index in the same layout.
-
-This is the mechanism search plans use when they materialize candidate windows
-for exact reranking.
-
-## Exact Operations
-
-### `kayak.maxsim(query, index, *, backend=kayak.NUMPY_REFERENCE_BACKEND)`
-
-Return exact scores for every document in the index.
-
-```python
-scores = kayak.maxsim(
-    query,
-    index,
-    backend=kayak.MOJO_EXACT_CPU_BACKEND,
-)
-```
-
-Returns `LateScores`.
-
-### `kayak.maxsim_batch(batch, index, *, backend=kayak.NUMPY_REFERENCE_BACKEND)`
-
-Return one `LateScores` object per query in the batch.
-
-### `kayak.search(query, index, *, k, backend=kayak.NUMPY_REFERENCE_BACKEND)`
-
-Return exact top-k `SearchHit` tuples.
-
-```python
-hits = kayak.search(
-    query,
-    index,
-    k=10,
-    backend=kayak.MOJO_EXACT_CPU_BACKEND,
-)
-```
-
-### `kayak.search_batch(batch, index, *, k, backend=kayak.NUMPY_REFERENCE_BACKEND)`
-
-Return exact top-k hits for each query in the batch.
-
-## Candidate Generation And Plans
-
-### `kayak.generate_candidates(query, index, generator, *, k, backend=kayak.NUMPY_REFERENCE_BACKEND)`
-
-Run stage-1 candidate generation directly.
-
-```python
-result = kayak.generate_candidates(
-    query,
-    index,
-    kayak.document_proxy_candidate_generator(),
-    k=100,
-    backend=kayak.MOJO_EXACT_CPU_BACKEND,
-)
-```
-
-Returns `CandidateStageResult`.
-
-### `kayak.search_with_plan(query, index, plan, *, backend=kayak.NUMPY_REFERENCE_BACKEND)`
-
-Run an explicit search plan and return `SearchPlanResult`.
-
-```python
-result = kayak.search_with_plan(
-    query,
-    index,
-    plan,
-    backend=kayak.MOJO_EXACT_CPU_BACKEND,
-)
-```
-
-## Read Next
-
-- [Usage Patterns](usage-patterns.md) when you want the shortest path from task to API
-- [Text Encoders](text-encoders.md) when you need to choose between ColBERT and your own model
-- [Storage + Search](storage-and-search.md) when persistence already lives elsewhere
-- [Search Plans](search-plans.md) when you need explicit stage reasoning
-- [Hosted Engine Python](hosted-engine-python.md) when your real target is `import kayak_engine`
-
-## Plan Builders
-
-### `kayak.exact_full_scan_search_plan(final_k, *, candidate_k=None, stage2_reference_operator=None, stage3_verifier=None)`
-
-Build an exact full-scan plan.
-
-This is the correctness baseline.
-
-### `kayak.exact_full_scan_clause_text_search_plan(final_k, *, candidate_k=None)`
-
-Build an exact full-scan plan with clause-text stage-3 verification.
-
-### `kayak.document_proxy_search_plan(final_k, candidate_k, *, query_vector_budget=0, document_vector_budget=0, stage2_reference_operator=None, stage3_verifier=None)`
-
-Build an approximate-candidate plus exact-rerank plan.
-
-This is the main staged retrieval API.
-
-## Stage Components
-
-### Candidate generators
-
-- `kayak.exact_full_scan_candidate_generator()`
-- `kayak.document_proxy_candidate_generator(*, query_vector_budget=0, document_vector_budget=0)`
-
-### Stage-2 reference operators
-
-- `kayak.exact_late_interaction_stage2_reference_operator()`
-- `kayak.noop_topk_stage2_reference_operator()`
-
-### Stage-3 verifiers
-
-- `kayak.clause_text_stage3_verifier_operator()`
-- `kayak.none_stage3_verifier_operator()`
-
-## Backends
-
-### Constants
-
-```python
-kayak.NUMPY_REFERENCE_BACKEND
-kayak.MOJO_EXACT_CPU_BACKEND
-```
-
-### `kayak.available_backends()`
-
-Return a tuple of available backend names.
-
-```python
-('numpy_reference', 'mojo_exact_cpu')
-```
-
-or, if Mojo is unavailable:
-
-```python
-('numpy_reference',)
-```
-
-### `kayak.backend_info(name)`
-
-Return a `BackendInfo` record with:
-
-- `name`
-- `available`
-- `requires_mojo`
-- `query_layouts`
-- `index_layouts`
-- `availability_reason`
-
-Use this instead of guessing why the Mojo backend is or is not available.
-
-### `kayak.mojo_bridge_info(*, probe_load=False)`
-
-Return structured diagnostics for the Python-to-Mojo bridge behind
-`mojo_exact_cpu`.
-
-Use this when you want one public SDK call that answers:
-
-- which Mojo command Kayak would invoke
-- whether the bridge is using repo sources or bundled wheel artifacts
-- what Mojo version the active CLI reports
-- what Mojo version built the bundled wheel artifact, when that metadata exists
-
-```python
-info = kayak.mojo_bridge_info()
-```
-
-If you want the stronger check that actually tries to build or load the bridge,
-use:
-
-```python
-info = kayak.mojo_bridge_info(probe_load=True)
-```
-
-That sets:
-
-- `module_loaded`
-- `load_error`
-
-so the caller can distinguish "Mojo is discoverable" from "the exact bridge
-really loaded successfully."
-
-### `kayak.help(topic=None)`
-
-Return generated public help from the exported API, signatures, and docstrings.
-
-Use this when you want terminal-friendly help that stays aligned with the
-current public package surface instead of a second handwritten registry.
-
-Examples:
-
-```python
-print(kayak.help())
-print(kayak.help("search"))
-print(kayak.help("stores"))
-print(kayak.help(kayak.LateTextRetriever))
-```
-
-## Types
-
-### Core objects
-
-- `LateQuery`
-- `LateQueryBatch`
-- `LateDocuments`
-- `LateIndex`
-
-### Scoring and hits
-
-- `LateScores`
-- `SearchHit`
-
-### Plan and stage results
-
-- `SearchPlan`
-- `SearchPlanResult`
-- `CandidateStageResult`
-- `SearchStageProfile`
-- `StageArtifactMaterialization`
-
-### Descriptors
-
-- `CandidateGenerator`
-- `Stage2ReferenceOperator`
-- `Stage3VerifierOperator`
-- `ReferenceScoringSemantics`
+- `kayak.available_backends()`
+- `kayak.backend_info(name)`
 - `BackendInfo`
 
-## Notes On Mojo Usage
+Install and runtime diagnostics:
 
-If you want your own codebase to behave as "use Mojo by default," define a
-backend constant and thread it through the operations you call:
+- `kayak.doctor(*, probe_mojo_load=False)`
+- `KayakDoctorReport`
+- `KayakFeatureStatus`
+
+REPL help:
+
+- `kayak.help(topic=None)`
+
+## Typing
+
+Use `kayak.typing` for stable public type aliases instead of importing from the internal bridge package.
+
+Example:
 
 ```python
-BACKEND = kayak.MOJO_EXACT_CPU_BACKEND
+from kayak.typing import DocIdsInput, DocTextsInput, TokenMatrixInput
 ```
 
-That is the supported way to make Mojo your application default without hiding
-which executor is running.
+## Minimal Examples
+
+### Text Workflow
+
+```python
+import kayak
+
+retriever = kayak.open_text_retriever(
+    encoder="colbert",
+    store="memory",
+)
+
+retriever.upsert_texts(["doc-1"], ["late interaction retrieval"])
+hits = retriever.search_text("late interaction", k=1)
+```
+
+### Vector Workflow
+
+```python
+import kayak
+
+query = kayak.query(query_vectors)
+index = kayak.documents(doc_ids, document_vectors).pack()
+hits = kayak.search(query, index, k=5)
+```
+
+### One Loaded Slice Reused Many Times
+
+```python
+index = store.load_index(where={"tenant": "acme"})
+session = kayak.LateTextSearchSession(encoder=encoder, index=index)
+hits = session.search_text("query text", k=5)
+```

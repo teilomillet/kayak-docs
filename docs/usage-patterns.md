@@ -8,7 +8,7 @@ This page is the shortest answer to:
 
 For a complete runnable example, download the executed notebook:
 
-- [real-usage-with-mojo.ipynb](notebooks/real-usage-with-mojo.ipynb)
+- [full local SDK walkthrough](notebooks/real-usage-with-mojo.ipynb)
 - [batch-search-on-one-loaded-lancedb-slice.ipynb](notebooks/batch-search-on-one-loaded-lancedb-slice.ipynb)
 - [lancedb-to-kayak-reranking.ipynb](notebooks/lancedb-to-kayak-reranking.ipynb)
 
@@ -16,14 +16,29 @@ If you already have a vector database and want Kayak to own retrieval, see:
 
 - [Storage + Search](storage-and-search.md)
 
-If your data already lives in a hosted-engine snapshot and you want one local
-Python reuse or scheduling surface around that snapshot, see:
-
-- [Hosted Engine Python](hosted-engine-python.md)
-
 If you are choosing an encoder first, read:
 
 - [Text Encoders](text-encoders.md)
+
+## Recommendation First
+
+If you just want the recommended public path:
+
+- use `kayak.open_text_retriever(...)` when your app starts from text
+- use `kayak.query(...)` plus `kayak.documents(...).pack()` when you already own token vectors
+- reuse one loaded or packed `LateIndex` when many queries hit the same slice
+- use `kayak.search_batch(...)` for repeated-query throughput on that same index
+- use `kayak.search(...)` when you only need top-k hits
+- use `kayak.maxsim(...)` only when you actually need the full score vector
+
+Current low-level fast path, as implemented:
+
+- `kayak.search(...)` or `kayak.search_batch(...)`
+- `backend=kayak.MOJO_EXACT_CPU_BACKEND`
+- packed index layout
+- nested query layout
+
+That is why the docs should push users toward index reuse and batch search rather than backend-specific application primitives.
 
 ## Choose The API Shape
 
@@ -99,7 +114,12 @@ Use:
 - `retriever.upsert_texts(...)` when the source corpus starts as raw text
 - `retriever.search_text(...)` when you want the retriever to encode the query and load the store slice
 - `retriever.load_index(...)` when you want to reuse one materialized slice across many queries
-- omit `backend=...` if you want this high-level workflow to prefer Mojo automatically when available
+- omit `backend=...` if the default backend behavior is enough for your application
+
+Default advice:
+
+- use the retriever first for simplicity
+- move to explicit `load_index(...)` plus `search_batch(...)` when repeated-query performance matters
 
 Choose the encoder this way:
 
@@ -183,6 +203,8 @@ hits_by_query = retriever.search_text_batch(
 This is the right public SDK shape when many queries target the same already
 loaded slice. It is different from generic concurrent use of one store object.
 
+This is also the current documented fast path for repeated-query public SDK use.
+
 ## Exact Baseline With Stage Profiles
 
 Use this when you want exact retrieval plus explicit stage accounting.
@@ -257,40 +279,6 @@ For the benchmark-backed version of this pattern, see:
 
 - [Storage + Search](storage-and-search.md)
 
-## Many Same-Process Callers Against One Fixed Snapshot
-
-Use this when your data already lives in a hosted-engine service root and many
-callers in one Python process need the same pinned snapshot.
-
-```python
-from kayak_engine import (
-    PreparedExactSearchRuntimeConfig,
-    prepare_exact_search_runtime,
-)
-
-runtime = prepare_exact_search_runtime(
-    service_root="./.state/kayak-engine",
-    collection_id="news",
-    tenant_id="tenant-a",
-    namespace_id="search",
-    snapshot_id="snapshot-0001",
-    config=PreparedExactSearchRuntimeConfig(
-        concurrency_lane_count=2,
-        worker_count=4,
-        max_batch_size=32,
-        max_batch_wait_ms=2,
-    ),
-)
-```
-
-Use:
-
-- `kayak.search_batch(...)` when you already loaded one local `LateIndex`
-- `kayak_engine.prepare_exact_search_runtime(...)` when many callers share one fixed hosted snapshot
-- `kayak_engine.prepare_exact_search_scheduler(...)` only as a compatibility alias
-- `concurrency_lane_count` when you need more than one independent runtime lane
-- [Hosted Engine Python](hosted-engine-python.md) for the full runtime contract
-
 ## Clause-Text Verification
 
 Use this only when you want the text-family verifier.
@@ -340,7 +328,7 @@ scores = kayak.maxsim(
 
 ## Backend Selection
 
-If your application should normally use Mojo, define it once and reuse it.
+If your application should normally use one explicit backend, define it once and reuse it.
 
 ```python
 BACKEND = kayak.MOJO_EXACT_CPU_BACKEND
@@ -380,7 +368,7 @@ vectors on CPU, builds a Kayak index, and runs:
 
 Notebook:
 
-- [real-usage-with-mojo.ipynb](notebooks/real-usage-with-mojo.ipynb)
+- [full local SDK walkthrough](notebooks/real-usage-with-mojo.ipynb)
 
 For vector-database handoff patterns, see:
 

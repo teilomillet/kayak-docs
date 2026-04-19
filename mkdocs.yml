@@ -1,62 +1,24 @@
 site_name: Kayak
-site_description: Late-interaction retrieval for Python with an explicit Mojo exact CPU backend
+site_description: Late-interaction retrieval docs for the Kayak Python SDK
 site_url: https://docs.withkayak.com
-repo_url: https://github.com/teilomillet/kayak-docs
-repo_name: teilomillet/kayak-docs
 
 theme:
   name: material
-  palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: blue grey
-      accent: blue
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      primary: blue grey
-      accent: blue
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
-  font:
-    text: Public Sans
-    code: IBM Plex Mono
-  features:
-    - navigation.instant
-    - navigation.tabs
-    - navigation.tabs.sticky
-    - navigation.indexes
-    - navigation.footer
-    - navigation.top
-    - navigation.tracking
-    - search.suggest
-    - search.highlight
-    - content.code.copy
-    - content.tabs.link
-    - toc.follow
+  font: false
 
 nav:
-  - Overview:
-    - Home: index.md
-    - Choose Your Path: start-here.md
-    - Installation: installation.md
-    - Quickstart: quickstart.md
-  - Guides:
-    - Text Encoders: text-encoders.md
-    - Usage Patterns: usage-patterns.md
-    - Storage + Search: storage-and-search.md
-    - Vector Databases: vector-databases.md
-    - Mojo Backend: mojo-backend.md
-    - Examples: examples.md
-  - Concepts:
-    - Late Interaction: concepts.md
-    - Search Plans: search-plans.md
-  - Reference:
-    - Python API: api.md
-    - Hosted Engine Python: hosted-engine-python.md
+  - Home: index.md
+  - Start Here: start-here.md
+  - Installation: installation.md
+  - Quickstart: quickstart.md
+  - Usage Patterns: usage-patterns.md
+  - Text Encoders: text-encoders.md
+  - Storage + Search: storage-and-search.md
+  - Vector Databases: vector-databases.md
+  - Search Plans: search-plans.md
+  - Concepts: concepts.md
+  - Python API: api.md
+  - Examples: examples.md
 
 extra_css:
   - stylesheets/extra.css

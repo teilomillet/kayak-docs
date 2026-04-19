@@ -11,6 +11,23 @@ If you already use a vector database, the default Kayak pattern is: leave persis
 | many queries hit the same fixed slice | `load_index(...)` once, then `search_batch(...)` | avoids repeated slice materialization |
 | the full slice is too large or must be routed first | database candidate stage plus exact Kayak search | use the DB only when it materially reduces the working set |
 
+## Recommendation First
+
+If storage already lives somewhere else, the public recommendation is:
+
+1. keep that system for persistence
+2. materialize one exact Kayak slice with `load_index(...)`
+3. reuse that slice
+4. use `search_batch(...)` when queries arrive in groups
+
+Current repeated-query fast path in the Python SDK:
+
+- one loaded `LateIndex`
+- `kayak.search_batch(...)`
+- `backend=kayak.MOJO_EXACT_CPU_BACKEND` when available
+
+The speed win comes mainly from reusing the loaded slice. Backend selection is secondary to avoiding repeated materialization.
+
 ## Local Evidence Snapshot
 
 These are local measured examples from the executed notebooks — useful deployment evidence, not universal benchmark claims.
@@ -130,9 +147,7 @@ What is verified and supported today is:
 
 - repeated queries against one loaded `LateIndex`
 - batched queries against one loaded `LateIndex`
-- explicit concurrent same-snapshot serving through `import kayak_engine`
+- reusable loaded-slice workflows through the public Python SDK
 
-If you want many same-process callers to share one fixed hosted snapshot, use
-the prepared scheduler from [Hosted Engine Python](hosted-engine-python.md)
-instead of assuming that shared concurrent `open_store(...)` use is the
-intended scale-out path.
+Do not assume that one shared `LateStore` instance is the intended concurrency
+surface across every adapter.

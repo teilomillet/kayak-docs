@@ -170,7 +170,7 @@ That distinction matters for documentation and benchmarking:
 
 - compare scores across backends when validating correctness
 - compare latency only after the semantic path is fixed
-- do not describe Mojo as a different retrieval algorithm
+- do not describe one backend as a different retrieval algorithm
 
 ## Candidate Generation And Reranking
 
@@ -239,22 +239,22 @@ Kayak's search-plan API exists to keep that boundary explicit.
 
 ## ColBERT-Style 128-Dim Embeddings
 
-The Mojo path is intended for ColBERT-style embeddings, where vectors are
-128-dimensional and queries and documents each carry multiple token vectors.
+The main optimized layout path is intended for ColBERT-style embeddings, where
+vectors are 128-dimensional and queries and documents each carry multiple token
+vectors.
 
 That is the shape where:
 
 - `flat_dim128` and `hybrid_flat_dim128` layouts make sense
 - explicit late-interaction benchmarking is meaningful
-- the Mojo exact CPU backend is the path to optimize and measure
+- explicit backend comparisons are meaningful
 
 If you are still sketching logic with tiny toy arrays, use the NumPy reference
-path. Use 128-dimensional examples when you want to exercise the real Mojo
-workflow.
+path. Use 128-dimensional examples when you want to exercise the main layout
+and backend workflow.
 
 ## Read Next
 
-- [Quickstart](quickstart.md) for the shortest working Mojo path
+- [Quickstart](quickstart.md) for the shortest working SDK path
 - [Usage Patterns](usage-patterns.md) for the task-to-API map
 - [Search Plans](search-plans.md) for explicit staged retrieval
-- [Using the Mojo Backend](mojo-backend.md) for the executor contract

@@ -6,7 +6,7 @@ Real, runnable Kayak examples. Use this page when you want to inspect working co
 
 | Example | Best for |
 | --- | --- |
-| [real-usage-with-mojo.ipynb](notebooks/real-usage-with-mojo.ipynb) | full local SDK walkthrough from text encoding to exact search, plans, and batch search |
+| [full local SDK walkthrough](notebooks/real-usage-with-mojo.ipynb) | full local SDK walkthrough from text encoding to exact search, plans, and batch search |
 | [batch-search-on-one-loaded-lancedb-slice.ipynb](notebooks/batch-search-on-one-loaded-lancedb-slice.ipynb) | repeated-query workflows on one loaded exact slice |
 | [lancedb-to-kayak-reranking.ipynb](notebooks/lancedb-to-kayak-reranking.ipynb) | LanceDB persistence with Kayak reranking and exact search |
 | [pgvector-to-kayak-exact-search.ipynb](notebooks/pgvector-to-kayak-exact-search.ipynb) | Postgres plus pgvector as durable storage with exact slice materialization |
@@ -33,7 +33,7 @@ Real, runnable Kayak examples. Use this page when you want to inspect working co
 
 | If you want to... | Open... |
 | --- | --- |
-| get the shortest Mojo-first script | [Quickstart](quickstart.md) |
+| get the shortest script | [Quickstart](quickstart.md) |
 | choose between retrievers, loaded slices, and plans | [Usage Patterns](usage-patterns.md) |
 | understand the database handoff model | [Storage + Search](storage-and-search.md) |
 | inspect adapter-specific storage facts | [Vector Databases](vector-databases.md) |

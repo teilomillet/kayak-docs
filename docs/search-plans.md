@@ -3,7 +3,7 @@
 Search plans are Kayak's way of making retrieval pipelines explicit and
 inspectable from Python.
 
-The important thing for Mojo users is this:
+The important thing for Python users is this:
 
 - stage structure is explicit
 - candidate generation is explicit
@@ -26,7 +26,7 @@ That makes search plans the right place to reason about both quality and cost.
     Start with:
 
     - `kayak.document_proxy_search_plan(...)`
-    - [Approximate Candidate Stage Plus Exact Mojo Rerank](#approximate-candidate-stage-plus-exact-mojo-rerank)
+    - [Approximate Candidate Stage Plus Exact Rerank](#approximate-candidate-stage-plus-exact-rerank)
 
 === "I Need To Check Whether Stage 1 Is Good Enough"
 
@@ -79,19 +79,19 @@ Stage 1 is already exact, so the plan defaults to:
 - exact full-scan candidate generation
 - `noop_topk` in stage 2
 
-When you run this plan with Mojo, the exact full scan is what uses the backend.
+When you run this plan, the exact full scan is what uses the selected backend.
 
 ### `document_proxy_search_plan(...)`
 
 Stage 1 is approximate document-proxy candidate generation.
 Stage 2 is exact late-interaction reranking.
 
-When you run this plan with Mojo:
+When you run this plan:
 
 - stage 1 still does the approximate proxy scoring
 - stage 2 exact reranking uses the chosen backend
 
-That is usually the most important plan to run on Mojo.
+That is usually the most important plan to run when comparing candidate stages against exact reranking.
 
 ## Why These Plans Matter
 
@@ -122,7 +122,7 @@ exact_result = kayak.search_with_plan(
     query,
     index,
     exact_plan,
-    backend=kayak.MOJO_EXACT_CPU_BACKEND,
+    backend=kayak.NUMPY_REFERENCE_BACKEND,
 )
 ```
 
@@ -131,7 +131,7 @@ This answers:
 - What are the exact winners?
 - What is the exact full-scan cost?
 
-## Approximate Candidate Stage Plus Exact Mojo Rerank
+## Approximate Candidate Stage Plus Exact Rerank
 
 Use this when you want a realistic retrieval pipeline:
 
@@ -147,7 +147,7 @@ approx_result = kayak.search_with_plan(
     query,
     index,
     approx_plan,
-    backend=kayak.MOJO_EXACT_CPU_BACKEND,
+    backend=kayak.NUMPY_REFERENCE_BACKEND,
 )
 ```
 
@@ -195,13 +195,13 @@ exact_result = kayak.search_with_plan(
     query,
     index,
     exact_plan,
-    backend=kayak.MOJO_EXACT_CPU_BACKEND,
+    backend=kayak.NUMPY_REFERENCE_BACKEND,
 )
 approx_result = kayak.search_with_plan(
     query,
     index,
     approx_plan,
-    backend=kayak.MOJO_EXACT_CPU_BACKEND,
+    backend=kayak.NUMPY_REFERENCE_BACKEND,
 )
 
 exact_ids = {hit.doc_id for hit in exact_result.hits}
