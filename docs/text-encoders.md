@@ -6,13 +6,17 @@ This page is the shortest answer to:
 - how to pass a Hugging Face model
 - how to bring your own model into Kayak
 
+This page starts after document parsing. If your source data is PDFs, scans,
+tables, or mixed-layout files, use a parser or extractor first and pass Kayak
+plain text or token-level vectors.
+
 Keep this simple:
 
 1. if you already have a ColBERT checkpoint on Hugging Face, use the built-in
    ColBERT encoder
 2. if you already have your own model that emits token-level vectors, use the
    callable encoder
-3. if you want one object for text ingest plus search, pass that encoder into
+3. if you want one object for plain-text ingest plus search, pass that encoder into
    `kayak.open_text_retriever(...)`
 
 ## Choose The Encoder Path
@@ -41,7 +45,7 @@ Keep this simple:
 
     - `kayak.open_text_retriever(...)`
 
-    Choose this when your application starts from text and you want one SDK
+    Choose this when your application starts from plain text and you want one SDK
     object that owns encoder plus store wiring.
 
 ## The Two Main Paths
@@ -178,7 +182,8 @@ appropriate.
 
 ## The Simplest Full Workflow
 
-If you want the shortest late-interaction setup and your inputs start as text:
+If you want the shortest late-interaction setup and your inputs start as plain
+text:
 
 ```python
 retriever = kayak.open_text_retriever(

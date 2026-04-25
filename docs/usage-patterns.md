@@ -42,7 +42,7 @@ That is why the docs should push users toward index reuse and batch search rathe
 
 ## Choose The API Shape
 
-=== "I Start From Text"
+=== "I Start From Plain Text"
 
     Use one retriever object:
 
@@ -51,7 +51,7 @@ That is why the docs should push users toward index reuse and batch search rathe
     - `retriever.search_text(...)`
     - `retriever.search_text_batch(...)` for repeated query traffic
 
-    Choose this when your application inputs are raw text and you do not want to
+    Choose this when your application inputs are plain text and you do not want to
     manage encoder and store objects separately.
 
 === "I Already Have Vectors"
@@ -89,10 +89,14 @@ That is why the docs should push users toward index reuse and batch search rathe
     Choose this when you need stage accounting, candidate windows, or exact
     reranking after an approximate first stage.
 
-## Text Ingest Plus Search
+## Plain-Text Ingest Plus Search
 
 Use this when your application starts from text and you want one SDK object for
 ingest plus retrieval.
+
+This is not a document-parsing path. If your inputs are PDFs, scans, tables, or
+other mixed-layout files, parse or extract them first and pass the resulting text
+or token-level vectors into Kayak.
 
 ```python
 import kayak
@@ -111,7 +115,7 @@ hits = retriever.search_text(query_text, k=5, where={"tenant": "acme"})
 Use:
 
 - `kayak.open_text_retriever(...)` for one high-level text workflow object
-- `retriever.upsert_texts(...)` when the source corpus starts as raw text
+- `retriever.upsert_texts(...)` when the source corpus starts as plain text
 - `retriever.search_text(...)` when you want the retriever to encode the query and load the store slice
 - `retriever.load_index(...)` when you want to reuse one materialized slice across many queries
 - omit `backend=...` if the default backend behavior is enough for your application
@@ -345,7 +349,7 @@ print(kayak.backend_info(kayak.MOJO_EXACT_CPU_BACKEND))
 
 | Task | API |
 | --- | --- |
-| Text ingest plus text search | `kayak.open_text_retriever(...)` |
+| Plain-text ingest plus text search | `kayak.open_text_retriever(...)` |
 | One query, top-k hits | `kayak.search(...)` |
 | One query, all exact scores | `kayak.maxsim(...)` |
 | Many queries, top-k hits | `kayak.search_batch(...)` |
